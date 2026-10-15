@@ -186,12 +186,25 @@ final earliestTransactionDateProvider =
   return repo.getEarliestTransactionDate();
 });
 
-// 统计：资产构成（按账户类型分组）
-final assetCompositionProvider = FutureProvider.autoDispose<List<({String type, double totalBalance})>>(
-        (ref) async {
-  final repo = ref.watch(repositoryProvider);
+// 统计：资产构成（每个账户单独一项）
+final assetCompositionProvider = FutureProvider.autoDispose<List<({
+  int id,
+  String name,
+  String? backgroundColor,
+  double totalBalance
+})>>((ref) async {
   ref.watch(statsRefreshProvider);
   final link = ref.keepAlive();
   ref.onDispose(() => link.close());
-  return repo.getAssetCompositionByType();
+  final accounts = await ref.watch(allAccountsStreamProvider.future);
+  final stats = await ref.watch(allAccountStatsProvider.future);
+  return accounts
+      .where((account) => !account.excludeFromNetWorth)
+      .map((account) => (
+            id: account.id,
+            name: account.name,
+            backgroundColor: account.backgroundColor,
+            totalBalance: stats[account.id]?.balance ?? 0,
+          ))
+      .toList();
 });

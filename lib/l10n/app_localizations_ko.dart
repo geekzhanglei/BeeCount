@@ -172,7 +172,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutChangelog => 'Changelog';
 
   @override
-  String get appTitle => '꿀벌 가계부';
+  String get appTitle => '我在记账';
 
   @override
   String get tabHome => '홈';
@@ -4396,7 +4396,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetQuickEntryDesc => '위젯의 왼쪽을 누르면 지출을 빠르게 추가하고, 오른쪽을 누르면 수입을 추가합니다. 단축어에서 beecount://new?type=transfer 를 사용해 이체를 빠르게 시작할 수도 있습니다.';
 
   @override
-  String get appName => 'BeeCount';
+  String get appName => '我在记账';
 
   @override
   String get monthSuffix => '';
@@ -8627,4 +8627,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String logExportCount(int count) {
     return 'Log entries: $count';
   }
+
+  @override
+  String get favoritesTitle => 'Favorites';
+
+  @override
+  String get favoritesAddImages => 'Add images';
+
+  @override
+  String get favoritesEmpty => 'No favorite images yet';
+
+  @override
+  String get favoritesSaveImage => 'Save image to favorites';
+
+  @override
+  String get favoritesSaved => 'Added to favorites';
 }

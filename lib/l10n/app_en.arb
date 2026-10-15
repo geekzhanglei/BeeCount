@@ -58,7 +58,7 @@
   "aiConsentAgree": "Agree & enable",
   "aboutPrivacyPolicy": "Privacy Policy",
   "aboutChangelog": "Changelog",
-  "appTitle": "Bee Accounting",
+  "appTitle": "我在记账",
   "@appTitle": {
     "description": "The application title"
   },
@@ -1864,7 +1864,7 @@
   "widgetDescription": "Widget automatically syncs to display today's and this month's income and expense data, refreshing every 30 minutes. Data updates immediately when app is opened.",
   "widgetQuickEntryTitle": "Quick Entry",
   "widgetQuickEntryDesc": "Tap the left side of the widget to quickly add an expense, or tap the right side to add an income. You can also use beecount://new?type=transfer via Shortcuts to quickly start a transfer.",
-  "appName": "BeeCount",
+  "appName": "我在记账",
   "monthSuffix": "",
   "todayExpense": "Today's Expense",
   "todayIncome": "Today's Income",
@@ -2103,6 +2103,7 @@
   "aboutPageSubtitle": "App information and help",
   "aboutPageLoadingVersion": "Loading version...",
   "aboutWebsite": "Official Website",
+  "aboutWebsite": "Original Project Website",
   "aboutGitHubRepo": "GitHub Repository",
   "aboutXiaohongshu": "Xiaohongshu",
   "aboutDouyin": "Douyin",
@@ -3881,5 +3882,10 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+  "favoritesTitle": "Favorites",
+  "favoritesAddImages": "Add images",
+  "favoritesEmpty": "No favorite images yet",
+  "favoritesSaveImage": "Save image to favorites",
+  "favoritesSaved": "Added to favorites"
 }

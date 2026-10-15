@@ -19,7 +19,6 @@ import '../../l10n/app_localizations.dart';
 
 // GitHub配置教程链接
 const _kSupabaseGuideUrl = 'https://github.com/TNT-Likely/BeeCount/wiki/Supabase-%E4%BA%91%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE';
-const _kWebdavGuideUrl = 'https://github.com/TNT-Likely/BeeCount/wiki/WebDAV-%E4%BA%91%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE';
 
 class CloudServicePage extends ConsumerStatefulWidget {
   const CloudServicePage({super.key});
@@ -293,23 +292,19 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
   Widget _buildConnectionStatus(CloudServiceConfig config) {
     final testResult = _connectionTestResults[config.id];
     final Color statusColor;
-    final IconData statusIcon;
     final String statusText;
 
     if (testResult == null) {
       // 未测试
       statusColor = BeeTokens.warning(context);
-      statusIcon = Icons.help_outline;
       statusText = AppLocalizations.of(context).cloudStatusNotTested;
     } else if (testResult) {
       // 测试成功
       statusColor = BeeTokens.success(context);
-      statusIcon = Icons.check_circle_outline;
       statusText = AppLocalizations.of(context).cloudStatusNormal;
     } else {
       // 测试失败
       statusColor = BeeTokens.error(context);
-      statusIcon = Icons.error_outline;
       statusText = AppLocalizations.of(context).cloudStatusFailed;
     }
 
@@ -430,7 +425,6 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
   void _showMultiDeviceDetailDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final primaryText = BeeTokens.textPrimary(context);
-    final secondaryText = BeeTokens.textSecondary(context);
 
     showDialog(
       context: context,

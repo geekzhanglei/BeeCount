@@ -16,7 +16,6 @@ import '../../models/note_history.dart';
 import '../../services/attachment_service.dart';
 import '../../providers.dart';
 import '../../utils/ui_scale_extensions.dart';
-import '../../utils/currencies.dart';
 import '../../pages/tag/widgets/tag_selector.dart';
 import 'note_picker_dialog.dart';
 import 'account_selector.dart';
@@ -252,7 +251,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   late String _amountStr;
   late DateTime _date;
   int? _selectedAccountId;
-  final bool _negative = false; // 显示用途，仅影响UI，不改变保存逻辑
   final TextEditingController _noteCtrl = TextEditingController();
   // 运算缓存：支持简单 + / - 键入累计
   double _acc = 0;

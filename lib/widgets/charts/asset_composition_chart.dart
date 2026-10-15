@@ -4,14 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../styles/tokens.dart';
 import '../../l10n/app_localizations.dart';
-import '../../utils/account_type_utils.dart';
 import '../../utils/ui_scale_extensions.dart';
-import '../../providers/theme_providers.dart';
 import '../biz/biz.dart';
 
 /// 资产构成饼图
 class AssetCompositionChart extends ConsumerStatefulWidget {
-  final List<({String type, double totalBalance})> data;
+  final List<
+          ({int id, String name, String? backgroundColor, double totalBalance})>
+      data;
+
   /// embedded 模式下不渲染外层 SectionCard 和标题
   final bool embedded;
 
@@ -22,46 +23,51 @@ class AssetCompositionChart extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AssetCompositionChart> createState() => _AssetCompositionChartState();
+  ConsumerState<AssetCompositionChart> createState() =>
+      _AssetCompositionChartState();
 }
 
 class _AssetCompositionChartState extends ConsumerState<AssetCompositionChart> {
   int _touchedIndex = -1;
-  static const _maxSlices = 8;
+  static const _fallbackColors = <Color>[
+    Color(0xFF5B8FF9),
+    Color(0xFF61DDAA),
+    Color(0xFFFF9D4D),
+    Color(0xFFE8684A),
+    Color(0xFF9270CA),
+    Color(0xFF6DC8EC),
+    Color(0xFFFFD666),
+    Color(0xFF7262FD),
+    Color(0xFF78D3F8),
+    Color(0xFF9661BC),
+    Color(0xFFF6903D),
+    Color(0xFF008685),
+    Color(0xFFF08BB4),
+    Color(0xFF5D7092),
+    Color(0xFFB8A4E5),
+    Color(0xFF3BA272),
+    Color(0xFFFC8452),
+    Color(0xFF5470C6),
+  ];
 
-  List<({String type, double value, Color color})> _buildSlices() {
-    final primaryColor = ref.watch(primaryColorProvider);
+  List<({int id, String name, double value, Color color})> _buildSlices() {
     // 过滤出正值项（资产构成只看正余额）
-    final positiveItems = widget.data
-        .where((d) => d.totalBalance > 0)
-        .toList()
+    final positiveItems = widget.data.where((d) => d.totalBalance > 0).toList()
       ..sort((a, b) => b.totalBalance.compareTo(a.totalBalance));
 
-    final slices = <({String type, double value, Color color})>[];
-    double otherTotal = 0;
-
-    for (var i = 0; i < positiveItems.length; i++) {
-      final item = positiveItems[i];
-      if (slices.length < _maxSlices) {
-        slices.add((
-          type: item.type,
-          value: item.totalBalance,
-          color: getColorForAccountType(item.type, primaryColor),
-        ));
-      } else {
-        otherTotal += item.totalBalance;
-      }
-    }
-
-    if (otherTotal > 0) {
-      slices.add((
-        type: '_other_',
-        value: otherTotal,
-        color: BeeTokens.textTertiary(context),
-      ));
-    }
-
-    return slices;
+    return positiveItems.map((item) {
+      final colorText = item.backgroundColor?.replaceFirst('#', '');
+      final customColor =
+          colorText == null ? null : int.tryParse(colorText, radix: 16);
+      return (
+        id: item.id,
+        name: item.name,
+        value: item.totalBalance,
+        color: customColor == null
+            ? _fallbackColors[item.id.abs() % _fallbackColors.length]
+            : Color(0xFF000000 | customColor),
+      );
+    }).toList();
   }
 
   @override
@@ -133,9 +139,7 @@ class _AssetCompositionChartState extends ConsumerState<AssetCompositionChart> {
                 children: [
                   Text(
                     selectedSlice != null
-                        ? (selectedSlice.type == '_other_'
-                            ? l10n.commonOther
-                            : getAccountTypeLabel(context, selectedSlice.type))
+                        ? selectedSlice.name
                         : l10n.assetComposition,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: BeeTokens.textTertiary(context),
@@ -167,9 +171,6 @@ class _AssetCompositionChartState extends ConsumerState<AssetCompositionChart> {
           alignment: WrapAlignment.center,
           children: slices.map((s) {
             final pct = (s.value / positiveSum * 100).toStringAsFixed(1);
-            final displayName = s.type == '_other_'
-                ? l10n.commonOther
-                : getAccountTypeLabel(context, s.type);
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -183,7 +184,7 @@ class _AssetCompositionChartState extends ConsumerState<AssetCompositionChart> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  displayName,
+                  s.name,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: BeeTokens.textPrimary(context),
                         fontSize: 11,

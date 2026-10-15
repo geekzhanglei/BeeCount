@@ -473,47 +473,4 @@ class _AndroidAutoBillingPageState extends ConsumerState<AndroidAutoBillingPage>
     );
   }
 
-  Widget _buildSupportCard(
-    BuildContext context,
-    Color primaryColor,
-    AppLocalizations l10n, {
-    required IconData icon,
-    required String title,
-    required List<String> items,
-  }) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: primaryColor, size: 24),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                item,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-            )),
-          ],
-        ),
-      ),
-    );
-  }
 }

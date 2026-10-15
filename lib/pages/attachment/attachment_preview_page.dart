@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/attachment_service.dart';
+import '../../services/favorite_image_service.dart';
 import '../../widgets/ui/ui.dart';
 
 /// 附件图片预览页面
@@ -224,6 +225,12 @@ class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage> {
                 ),
               ),
               const Spacer(),
+              IconButton(
+                tooltip: l10n.favoritesSaveImage,
+                onPressed: _favoriteCurrentImage,
+                icon: const Icon(Icons.bookmark_add_outlined,
+                    color: Colors.white),
+              ),
               // 添加按钮
               if (widget.allowAdd && _totalCount < 9)
                 IconButton(
@@ -244,6 +251,29 @@ class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _favoriteCurrentImage() async {
+    File? file;
+    if (_currentIndex < _savedAttachments.length) {
+      final attachment = _savedAttachments[_currentIndex];
+      final filePath = await ref
+          .read(attachmentServiceProvider)
+          .getAttachmentPath(attachment.fileName);
+      file = File(filePath);
+    } else {
+      final pendingIndex = _currentIndex - _savedAttachments.length;
+      if (pendingIndex >= 0 && pendingIndex < _pendingFiles.length) {
+        file = _pendingFiles[pendingIndex];
+      }
+    }
+    if (file == null || !mounted) return;
+    await FavoriteImageService.add(file);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).favoritesSaved)),
+      );
+    }
   }
 
   Widget _buildSavedImageView(TransactionAttachment attachment) {
@@ -356,7 +386,9 @@ class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage> {
           decoration: BoxDecoration(
             color: isActive
                 ? Colors.white
-                : (isPending ? Colors.orange.withValues(alpha: 0.7) : Colors.white54),
+                : (isPending
+                    ? Colors.orange.withValues(alpha: 0.7)
+                    : Colors.white54),
             shape: BoxShape.circle,
           ),
         );

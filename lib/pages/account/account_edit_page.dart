@@ -71,12 +71,24 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     'loan',
   ];
   static const List<Color> _customColorOptions = [
-    Color(0xFF6C63FF),
-    Color(0xFF2196F3),
-    Color(0xFF009688),
-    Color(0xFFFF9800),
-    Color(0xFFE91E63),
-    Color(0xFF607D8B),
+    Color(0xFF5B8FF9),
+    Color(0xFF61DDAA),
+    Color(0xFFFF9D4D),
+    Color(0xFFE8684A),
+    Color(0xFF9270CA),
+    Color(0xFF6DC8EC),
+    Color(0xFFFFD666),
+    Color(0xFF7262FD),
+    Color(0xFF78D3F8),
+    Color(0xFF9661BC),
+    Color(0xFFF6903D),
+    Color(0xFF008685),
+    Color(0xFFF08BB4),
+    Color(0xFF5D7092),
+    Color(0xFFB8A4E5),
+    Color(0xFF3BA272),
+    Color(0xFFFC8452),
+    Color(0xFF5470C6),
   ];
 
   @override
@@ -1003,9 +1015,9 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                             const SizedBox(height: 12),
                             Wrap(
                               spacing: 12,
+                              runSpacing: 12,
                               children: _customColorOptions.map((color) {
-                                final value =
-                                    '#${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+                                final value = _accountColorHex(color);
                                 final selected = (_customBackgroundColor ?? '')
                                         .toUpperCase() ==
                                     value;
@@ -1022,7 +1034,39 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                         : null,
                                   ),
                                 );
-                              }).toList(),
+                              }).toList()
+                                ..add(
+                                  InkWell(
+                                    onTap: () async {
+                                      final picked = await showDialog<Color>(
+                                        context: context,
+                                        builder: (_) =>
+                                            _AccountColorPickerDialog(
+                                          initialColor: _customBackgroundColor ==
+                                                  null
+                                              ? primaryColor
+                                              : Color(int.parse(
+                                                  'FF${_customBackgroundColor!.replaceFirst('#', '')}',
+                                                  radix: 16)),
+                                        ),
+                                      );
+                                      if (picked != null && mounted) {
+                                        setState(() => _customBackgroundColor =
+                                            _accountColorHex(picked));
+                                      }
+                                    },
+                                    customBorder: const CircleBorder(),
+                                    child: CircleAvatar(
+                                      radius: 18,
+                                      backgroundColor:
+                                          BeeTokens.surfaceElevated(context),
+                                      child: Icon(Icons.colorize,
+                                          color:
+                                              BeeTokens.textSecondary(context),
+                                          size: 18),
+                                    ),
+                                  ),
+                                ),
                             ),
                             SwitchListTile.adaptive(
                               contentPadding: EdgeInsets.zero,
@@ -1814,6 +1858,12 @@ class _BalanceAdjustmentModeSelectorState
 }
 
 /// 统一的 filled 圆角输入框装饰（TextField 与点击式字段框共用，保证等高同款）
+String _accountColorHex(Color color) => '#${[
+      color.r,
+      color.g,
+      color.b
+    ].map((value) => (value * 255).round().toRadixString(16).padLeft(2, '0')).join().toUpperCase()}';
+
 InputDecoration _filledDecoration(
   BuildContext context,
   Color primary, {
@@ -1964,6 +2014,76 @@ class _DayPickerTile extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _AccountColorPickerDialog extends StatefulWidget {
+  const _AccountColorPickerDialog({required this.initialColor});
+
+  final Color initialColor;
+
+  @override
+  State<_AccountColorPickerDialog> createState() =>
+      _AccountColorPickerDialogState();
+}
+
+class _AccountColorPickerDialogState extends State<_AccountColorPickerDialog> {
+  late HSVColor _color = HSVColor.fromColor(widget.initialColor);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final color = _color.toColor();
+    return AlertDialog(
+      title: Text(l10n.personalizeCustomTitle),
+      content: SizedBox(
+        width: 320,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(l10n.personalizeHue(_color.hue.round())),
+              Slider(
+                value: _color.hue,
+                min: 0,
+                max: 360,
+                onChanged: (v) => setState(() => _color = _color.withHue(v)),
+              ),
+              Text(l10n
+                  .personalizeSaturation((_color.saturation * 100).round())),
+              Slider(
+                value: _color.saturation,
+                onChanged: (v) =>
+                    setState(() => _color = _color.withSaturation(v)),
+              ),
+              Text(l10n.personalizeBrightness((_color.value * 100).round())),
+              Slider(
+                value: _color.value,
+                onChanged: (v) => setState(() => _color = _color.withValue(v)),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.commonCancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, color),
+          child: Text(l10n.personalizeSelectColor),
+        ),
+      ],
     );
   }
 }

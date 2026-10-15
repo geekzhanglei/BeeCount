@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' as drift;
 import 'package:intl/intl.dart';
 import '../../providers.dart';
 import '../../widgets/ui/ui.dart';
@@ -410,8 +409,6 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
 
   String? _getAccountErrorText(bool isFromAccount) {
     if (!_hasAttemptedSave) return null;
-
-    final l10n = AppLocalizations.of(context);
 
     if (isFromAccount) {
       if (_type == 'transfer' && _selectedAccountId == null) {

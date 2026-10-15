@@ -340,8 +340,6 @@ class _LogEntryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-
     // 根据日志级别选择颜色
     final levelColor = switch (log.level) {
       LogLevel.debug => Colors.grey,

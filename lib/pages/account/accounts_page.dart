@@ -285,7 +285,15 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                   double netWorth
                 })>>
         netWorthAsync,
-    AsyncValue<List<({String type, double totalBalance})>> compositionAsync,
+    AsyncValue<
+            List<
+                ({
+                  int id,
+                  String name,
+                  String? backgroundColor,
+                  double totalBalance
+                })>>
+        compositionAsync,
     Color primaryColor,
   ) {
     // reload 时 asData 会短暂变 null 致布局闪动,用 valueOrNull 保留上次结果

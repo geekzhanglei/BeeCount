@@ -195,21 +195,22 @@ final convertedNetWorthProvider =
   return computeConvertedNetWorth(breakdown: breakdown, rates: rates, base: base);
 });
 
-/// 折算后的资产构成:每 (type, currency) 原币余额 × 汇率 → 按 type 聚合(主币种值)。
+/// 折算后的资产构成:每个账户按币种汇率折算,保留账户维度。
 /// 缺汇率的币种整条剔除(绝不按 1.0,与净资产/分组小计一致,README D5)。
-/// 多币种折算态喂给 [AssetCompositionChart](入参类型与 [assetCompositionProvider] 相同)。
+/// 多币种折算态喂给 [AssetCompositionChart]。
 final convertedAssetCompositionProvider =
-    FutureProvider<List<({String type, double totalBalance})>>((ref) async {
+    FutureProvider<List<({int id, String name, String? backgroundColor, double totalBalance})>>((ref) async {
   final rates = await ref.watch(effectiveRatesProvider.future);
   final base = ref.watch(baseCurrencyProvider).toUpperCase();
   ref.watch(statsRefreshProvider);
   ref.watch(rateRefreshTickProvider);
-  final repo = ref.watch(repositoryProvider);
-  final rows = await repo.getAssetCompositionByTypeAndCurrency();
+  final accounts = await ref.watch(allAccountsStreamProvider.future);
+  final stats = await ref.watch(allAccountStatsProvider.future);
 
-  final byType = <String, double>{};
-  for (final r in rows) {
-    final code = r.currency.toUpperCase();
+  final converted = <({int id, String name, String? backgroundColor, double totalBalance})>[];
+  for (final account in accounts) {
+    if (account.excludeFromNetWorth) continue;
+    final code = account.currency.toUpperCase();
     double? rate;
     if (code == base) {
       rate = 1.0;
@@ -218,12 +219,14 @@ final convertedAssetCompositionProvider =
       if (eff != null) rate = double.tryParse(eff.rate);
     }
     if (rate == null || rate <= 0) continue; // 缺汇率剔除
-    byType.update(r.type, (v) => v + r.totalBalance * rate!,
-        ifAbsent: () => r.totalBalance * rate!);
+    converted.add((
+      id: account.id,
+      name: account.name,
+      backgroundColor: account.backgroundColor,
+      totalBalance: (stats[account.id]?.balance ?? 0) * rate,
+    ));
   }
-  return byType.entries
-      .map((e) => (type: e.key, totalBalance: e.value))
-      .toList();
+  return converted;
 });
 
 /// 拉取协调:server 源(云模式)→ 公网链;倒数后只落「使用中币种」;成功 bump tick。

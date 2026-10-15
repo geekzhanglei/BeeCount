@@ -26,47 +26,6 @@ extension SyncEngineAttachmentsExt on SyncEngine {
     }
   }
 
-  /// 上传所有分类的自定义图标到云端，返回 categoryId → 云端引用 的映射。
-  /// 分类的 customIconPath 是本地文件路径，单独上传后 serializeCategory 会把
-  /// cloud 引用写进 payload 让 web 端能拉到。
-  ///
-  /// 走 user-global 的 `/attachments/category-icons/upload` endpoint,跟账本
-  /// 解耦:相同 sha256 的图标全用户只上传 1 份(server 端按 user_id + sha256
-  /// 去重),避免历史"每个账本各上传一份"的倍数膨胀。
-  Future<Map<int, ({String fileId, String sha256})>>
-      _uploadCategoryIcons() async {
-    final categories = await db.select(db.categories).get();
-    final out = <int, ({String fileId, String sha256})>{};
-    final iconSvc = CustomIconService();
-    for (final cat in categories) {
-      if (cat.iconType != 'custom') continue;
-      final rel = cat.customIconPath;
-      if (rel == null || rel.isEmpty) continue;
-      try {
-        final abs = await iconSvc.resolveIconPath(rel);
-        final file = File(abs);
-        if (!file.existsSync()) {
-          logger.debug('SyncEngine',
-              '分类 ${cat.name} 的自定义图标文件不存在: $abs');
-          continue;
-        }
-        final bytes = await file.readAsBytes();
-        final result = await provider.uploadCategoryIcon(
-          bytes: bytes,
-          fileName: rel.split('/').last,
-        );
-        out[cat.id] = (fileId: result.fileId, sha256: result.sha256);
-      } catch (e, st) {
-        logger.error(
-            'SyncEngine', '分类 ${cat.name} 自定义图标上传失败', e, st);
-      }
-    }
-    if (out.isNotEmpty) {
-      logger.info('SyncEngine', '分类自定义图标上传完成: ${out.length} 个');
-    }
-    return out;
-  }
-
   /// 上传账本中未同步的附件到云端。
   ///
   /// Phase 3 改造:Semaphore(concurrency=4) 并发 + 指数退避 retry。
