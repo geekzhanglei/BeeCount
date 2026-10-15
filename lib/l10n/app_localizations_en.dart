@@ -6900,6 +6900,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountTabValuation => 'Valuation';
 
   @override
+  String get accountTypeCustom => 'Custom';
+
+  @override
+  String get accountBackgroundColor => 'Account background color';
+
+  @override
+  String get accountExcludeFromNetWorth => 'Exclude from total assets';
+
+  @override
+  String get accountExcludeFromNetWorthHint => 'Keep the account visible, but exclude its balance from net worth and trends';
+
+  @override
   String get creditCardDaysRequired => 'Please select billing & due dates';
 
   @override

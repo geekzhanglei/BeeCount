@@ -6894,6 +6894,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountTabValuation => '估值账户';
 
   @override
+  String get accountTypeCustom => '自定义账户';
+
+  @override
+  String get accountBackgroundColor => '账户背景颜色';
+
+  @override
+  String get accountExcludeFromNetWorth => '不计入总资产';
+
+  @override
+  String get accountExcludeFromNetWorthHint => '账户仍保留在资产管理中，但余额不计入净资产和趋势';
+
+  @override
   String get creditCardDaysRequired => '请选择账单日和还款日';
 
   @override
@@ -15497,6 +15509,18 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get accountTabValuation => '估值帳戶';
+
+  @override
+  String get accountTypeCustom => '自訂帳戶';
+
+  @override
+  String get accountBackgroundColor => '帳戶背景顏色';
+
+  @override
+  String get accountExcludeFromNetWorth => '不計入總資產';
+
+  @override
+  String get accountExcludeFromNetWorthHint => '帳戶仍保留在資產管理中，但餘額不計入淨資產和趨勢';
 
   @override
   String get creditCardDaysRequired => '請選擇帳單日和還款日';

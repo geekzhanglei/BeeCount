@@ -6900,6 +6900,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountTabValuation => '평가액';
 
   @override
+  String get accountTypeCustom => '사용자 지정 계정';
+
+  @override
+  String get accountBackgroundColor => '계정 배경색';
+
+  @override
+  String get accountExcludeFromNetWorth => '총자산에서 제외';
+
+  @override
+  String get accountExcludeFromNetWorthHint => '계정은 표시되지만 잔액은 순자산과 추세에서 제외됩니다';
+
+  @override
   String get creditCardDaysRequired => '결제일과 만기일을 선택해 주세요';
 
   @override

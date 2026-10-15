@@ -13136,6 +13136,30 @@ abstract class AppLocalizations {
   /// **'Valuation'**
   String get accountTabValuation;
 
+  /// No description provided for @accountTypeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get accountTypeCustom;
+
+  /// No description provided for @accountBackgroundColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Account background color'**
+  String get accountBackgroundColor;
+
+  /// No description provided for @accountExcludeFromNetWorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclude from total assets'**
+  String get accountExcludeFromNetWorth;
+
+  /// No description provided for @accountExcludeFromNetWorthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the account visible, but exclude its balance from net worth and trends'**
+  String get accountExcludeFromNetWorthHint;
+
   /// No description provided for @creditCardDaysRequired.
   ///
   /// In en, this message translates to:

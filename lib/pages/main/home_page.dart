@@ -700,8 +700,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     height: 48,
                     child: Row(
                       children: [
-                        // 左侧：BeeIcon + 标题 + 账本切换胶囊（用 Expanded 包住，
-                        // 标题在空间富余时显示自然宽度，仅在不够时 ellipsis）
+                        // 左侧：BeeIcon + 账本切换胶囊
                         BeeIcon(
                           color: Theme.of(context).colorScheme.primary,
                           size: 28,
@@ -710,24 +709,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                         Expanded(
                           child: Row(
                             children: [
-                              // 标题取自然宽度,溢出时优先压缩账本名而不是 app 名
-                              Text(
-                                AppLocalizations.of(context).homeAppTitle,
-                                maxLines: 1,
-                                softWrap: false,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.color,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                              const SizedBox(width: 6),
                               Expanded(
                                 child: Align(
                                   alignment: AlignmentDirectional.centerStart,

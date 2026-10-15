@@ -67,6 +67,8 @@ void main() {
       initialBalance: 0,
       sortOrder: id,
       hidden: false,
+      backgroundColor: null,
+      excludeFromNetWorth: false,
     );
   }
 

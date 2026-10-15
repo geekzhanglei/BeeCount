@@ -1812,6 +1812,8 @@ class LocalRepository extends BaseRepository {
     String? cardLastFour,
     String? note,
     String? syncId,
+    String? backgroundColor,
+    bool excludeFromNetWorth = false,
   }) async {
     final id = await _accountRepo.createAccount(
       ledgerId: ledgerId,
@@ -1826,6 +1828,8 @@ class LocalRepository extends BaseRepository {
       cardLastFour: cardLastFour,
       note: note,
       syncId: syncId,
+      backgroundColor: backgroundColor,
+      excludeFromNetWorth: excludeFromNetWorth,
     );
     if (changeTracker != null) {
       final account = await _accountRepo.getAccount(id);
@@ -1879,6 +1883,8 @@ class LocalRepository extends BaseRepository {
     String? note,
     bool clearMetadataFields = false,
     bool? hidden,
+    String? backgroundColor,
+    bool? excludeFromNetWorth,
   }) async {
     final account =
         changeTracker != null ? await _accountRepo.getAccount(id) : null;
@@ -1897,6 +1903,8 @@ class LocalRepository extends BaseRepository {
       note: note,
       clearMetadataFields: clearMetadataFields,
       hidden: hidden,
+      backgroundColor: backgroundColor,
+      excludeFromNetWorth: excludeFromNetWorth,
     );
     if (account?.syncId != null) {
       await changeTracker!.recordUserGlobalChange(
@@ -1922,7 +1930,8 @@ class LocalRepository extends BaseRepository {
       throw StateError(resolveAppLocalizations(null).ledgerMissing);
     }
     if (ledger.isShared && ledger.myRole != 'owner') {
-      throw StateError(resolveAppLocalizations(null).sharedLedgerBalanceRestricted);
+      throw StateError(
+          resolveAppLocalizations(null).sharedLedgerBalanceRestricted);
     }
 
     final account = await getAccount(accountId);
