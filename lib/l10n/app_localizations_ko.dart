@@ -172,7 +172,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutChangelog => 'Changelog';
 
   @override
-  String get appTitle => '꿀벌 가계부';
+  String get appTitle => '我在记账';
 
   @override
   String get tabHome => '홈';
@@ -4396,7 +4396,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetQuickEntryDesc => '위젯의 왼쪽을 누르면 지출을 빠르게 추가하고, 오른쪽을 누르면 수입을 추가합니다. 단축어에서 beecount://new?type=transfer 를 사용해 이체를 빠르게 시작할 수도 있습니다.';
 
   @override
-  String get appName => 'BeeCount';
+  String get appName => '我在记账';
 
   @override
   String get monthSuffix => '';
@@ -6900,6 +6900,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountTabValuation => '평가액';
 
   @override
+  String get accountTypeCustom => '사용자 지정 계정';
+
+  @override
+  String get accountBackgroundColor => '계정 배경색';
+
+  @override
+  String get accountExcludeFromNetWorth => '총자산에서 제외';
+
+  @override
+  String get accountExcludeFromNetWorthHint => '계정은 표시되지만 잔액은 순자산과 추세에서 제외됩니다';
+
+  @override
   String get creditCardDaysRequired => '결제일과 만기일을 선택해 주세요';
 
   @override
@@ -8615,4 +8627,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String logExportCount(int count) {
     return 'Log entries: $count';
   }
+
+  @override
+  String get favoritesTitle => 'Favorites';
+
+  @override
+  String get favoritesAddImages => 'Add images';
+
+  @override
+  String get favoritesEmpty => 'No favorite images yet';
+
+  @override
+  String get favoritesSaveImage => 'Save image to favorites';
+
+  @override
+  String get favoritesSaved => 'Added to favorites';
 }

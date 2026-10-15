@@ -318,6 +318,8 @@ class LocalTransactionRepository implements TransactionRepository {
       // SharedLedgerAccounts 镜像表没有 hidden 概念(隐藏是 Owner 侧个人状态,
       // 不随共享账本镜像同步),synthetic 账户固定按「未隐藏」处理。
       hidden: false,
+      backgroundColor: null,
+      excludeFromNetWorth: false,
     );
   }
 
@@ -1094,8 +1096,8 @@ class LocalTransactionRepository implements TransactionRepository {
     for (final row in results) {
       final date = row.read<String?>('date');
       if (date == null) continue; // 跳过null日期
-      final income = row.read<double>('income') ?? 0.0;
-      final expense = row.read<double>('expense') ?? 0.0;
+      final income = row.read<double>('income');
+      final expense = row.read<double>('expense');
       map[date] = (income, expense);
     }
 
@@ -1352,6 +1354,8 @@ class LocalTransactionRepository implements TransactionRepository {
               // SharedLedgerAccounts 镜像表没有 hidden 概念(隐藏是 Owner 侧
               // 个人状态,不随共享账本镜像同步),synthetic 账户固定按「未隐藏」处理。
               hidden: false,
+              backgroundColor: null,
+              excludeFromNetWorth: false,
             );
           }
         }

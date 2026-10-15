@@ -654,6 +654,22 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("hidden" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _backgroundColorMeta =
+      const VerificationMeta('backgroundColor');
+  @override
+  late final GeneratedColumn<String> backgroundColor = GeneratedColumn<String>(
+      'background_color', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _excludeFromNetWorthMeta =
+      const VerificationMeta('excludeFromNetWorth');
+  @override
+  late final GeneratedColumn<bool> excludeFromNetWorth = GeneratedColumn<bool>(
+      'exclude_from_net_worth', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("exclude_from_net_worth" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -672,7 +688,9 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
         cardLastFour,
         note,
         syncId,
-        hidden
+        hidden,
+        backgroundColor,
+        excludeFromNetWorth
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -765,6 +783,18 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
       context.handle(_hiddenMeta,
           hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta));
     }
+    if (data.containsKey('background_color')) {
+      context.handle(
+          _backgroundColorMeta,
+          backgroundColor.isAcceptableOrUnknown(
+              data['background_color']!, _backgroundColorMeta));
+    }
+    if (data.containsKey('exclude_from_net_worth')) {
+      context.handle(
+          _excludeFromNetWorthMeta,
+          excludeFromNetWorth.isAcceptableOrUnknown(
+              data['exclude_from_net_worth']!, _excludeFromNetWorthMeta));
+    }
     return context;
   }
 
@@ -808,6 +838,10 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
           .read(DriftSqlType.string, data['${effectivePrefix}sync_id']),
       hidden: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}hidden'])!,
+      backgroundColor: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}background_color']),
+      excludeFromNetWorth: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}exclude_from_net_worth'])!,
     );
   }
 
@@ -838,6 +872,8 @@ class Account extends DataClass implements Insertable<Account> {
   /// 隐藏:true 时该账户不再出现在记账/转账/周期选择器,账户管理页移入「已隐藏」分区。
   /// 仍计入账户余额、净资产、资产构成、净值趋势(.docs/account-archive/01 §二 D1)。
   final bool hidden;
+  final String? backgroundColor;
+  final bool excludeFromNetWorth;
   const Account(
       {required this.id,
       required this.ledgerId,
@@ -855,7 +891,9 @@ class Account extends DataClass implements Insertable<Account> {
       this.cardLastFour,
       this.note,
       this.syncId,
-      required this.hidden});
+      required this.hidden,
+      this.backgroundColor,
+      required this.excludeFromNetWorth});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -894,6 +932,10 @@ class Account extends DataClass implements Insertable<Account> {
       map['sync_id'] = Variable<String>(syncId);
     }
     map['hidden'] = Variable<bool>(hidden);
+    if (!nullToAbsent || backgroundColor != null) {
+      map['background_color'] = Variable<String>(backgroundColor);
+    }
+    map['exclude_from_net_worth'] = Variable<bool>(excludeFromNetWorth);
     return map;
   }
 
@@ -931,6 +973,10 @@ class Account extends DataClass implements Insertable<Account> {
       syncId:
           syncId == null && nullToAbsent ? const Value.absent() : Value(syncId),
       hidden: Value(hidden),
+      backgroundColor: backgroundColor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(backgroundColor),
+      excludeFromNetWorth: Value(excludeFromNetWorth),
     );
   }
 
@@ -955,6 +1001,9 @@ class Account extends DataClass implements Insertable<Account> {
       note: serializer.fromJson<String?>(json['note']),
       syncId: serializer.fromJson<String?>(json['syncId']),
       hidden: serializer.fromJson<bool>(json['hidden']),
+      backgroundColor: serializer.fromJson<String?>(json['backgroundColor']),
+      excludeFromNetWorth:
+          serializer.fromJson<bool>(json['excludeFromNetWorth']),
     );
   }
   @override
@@ -978,6 +1027,8 @@ class Account extends DataClass implements Insertable<Account> {
       'note': serializer.toJson<String?>(note),
       'syncId': serializer.toJson<String?>(syncId),
       'hidden': serializer.toJson<bool>(hidden),
+      'backgroundColor': serializer.toJson<String?>(backgroundColor),
+      'excludeFromNetWorth': serializer.toJson<bool>(excludeFromNetWorth),
     };
   }
 
@@ -998,7 +1049,9 @@ class Account extends DataClass implements Insertable<Account> {
           Value<String?> cardLastFour = const Value.absent(),
           Value<String?> note = const Value.absent(),
           Value<String?> syncId = const Value.absent(),
-          bool? hidden}) =>
+          bool? hidden,
+          Value<String?> backgroundColor = const Value.absent(),
+          bool? excludeFromNetWorth}) =>
       Account(
         id: id ?? this.id,
         ledgerId: ledgerId ?? this.ledgerId,
@@ -1019,6 +1072,10 @@ class Account extends DataClass implements Insertable<Account> {
         note: note.present ? note.value : this.note,
         syncId: syncId.present ? syncId.value : this.syncId,
         hidden: hidden ?? this.hidden,
+        backgroundColor: backgroundColor.present
+            ? backgroundColor.value
+            : this.backgroundColor,
+        excludeFromNetWorth: excludeFromNetWorth ?? this.excludeFromNetWorth,
       );
   Account copyWithCompanion(AccountsCompanion data) {
     return Account(
@@ -1047,6 +1104,12 @@ class Account extends DataClass implements Insertable<Account> {
       note: data.note.present ? data.note.value : this.note,
       syncId: data.syncId.present ? data.syncId.value : this.syncId,
       hidden: data.hidden.present ? data.hidden.value : this.hidden,
+      backgroundColor: data.backgroundColor.present
+          ? data.backgroundColor.value
+          : this.backgroundColor,
+      excludeFromNetWorth: data.excludeFromNetWorth.present
+          ? data.excludeFromNetWorth.value
+          : this.excludeFromNetWorth,
     );
   }
 
@@ -1069,7 +1132,9 @@ class Account extends DataClass implements Insertable<Account> {
           ..write('cardLastFour: $cardLastFour, ')
           ..write('note: $note, ')
           ..write('syncId: $syncId, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('backgroundColor: $backgroundColor, ')
+          ..write('excludeFromNetWorth: $excludeFromNetWorth')
           ..write(')'))
         .toString();
   }
@@ -1092,7 +1157,9 @@ class Account extends DataClass implements Insertable<Account> {
       cardLastFour,
       note,
       syncId,
-      hidden);
+      hidden,
+      backgroundColor,
+      excludeFromNetWorth);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1113,7 +1180,9 @@ class Account extends DataClass implements Insertable<Account> {
           other.cardLastFour == this.cardLastFour &&
           other.note == this.note &&
           other.syncId == this.syncId &&
-          other.hidden == this.hidden);
+          other.hidden == this.hidden &&
+          other.backgroundColor == this.backgroundColor &&
+          other.excludeFromNetWorth == this.excludeFromNetWorth);
 }
 
 class AccountsCompanion extends UpdateCompanion<Account> {
@@ -1134,6 +1203,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
   final Value<String?> note;
   final Value<String?> syncId;
   final Value<bool> hidden;
+  final Value<String?> backgroundColor;
+  final Value<bool> excludeFromNetWorth;
   const AccountsCompanion({
     this.id = const Value.absent(),
     this.ledgerId = const Value.absent(),
@@ -1152,6 +1223,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.note = const Value.absent(),
     this.syncId = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.backgroundColor = const Value.absent(),
+    this.excludeFromNetWorth = const Value.absent(),
   });
   AccountsCompanion.insert({
     this.id = const Value.absent(),
@@ -1171,6 +1244,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.note = const Value.absent(),
     this.syncId = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.backgroundColor = const Value.absent(),
+    this.excludeFromNetWorth = const Value.absent(),
   })  : ledgerId = Value(ledgerId),
         name = Value(name);
   static Insertable<Account> custom({
@@ -1191,6 +1266,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Expression<String>? note,
     Expression<String>? syncId,
     Expression<bool>? hidden,
+    Expression<String>? backgroundColor,
+    Expression<bool>? excludeFromNetWorth,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1210,6 +1287,9 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       if (note != null) 'note': note,
       if (syncId != null) 'sync_id': syncId,
       if (hidden != null) 'hidden': hidden,
+      if (backgroundColor != null) 'background_color': backgroundColor,
+      if (excludeFromNetWorth != null)
+        'exclude_from_net_worth': excludeFromNetWorth,
     });
   }
 
@@ -1230,7 +1310,9 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       Value<String?>? cardLastFour,
       Value<String?>? note,
       Value<String?>? syncId,
-      Value<bool>? hidden}) {
+      Value<bool>? hidden,
+      Value<String?>? backgroundColor,
+      Value<bool>? excludeFromNetWorth}) {
     return AccountsCompanion(
       id: id ?? this.id,
       ledgerId: ledgerId ?? this.ledgerId,
@@ -1249,6 +1331,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       note: note ?? this.note,
       syncId: syncId ?? this.syncId,
       hidden: hidden ?? this.hidden,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      excludeFromNetWorth: excludeFromNetWorth ?? this.excludeFromNetWorth,
     );
   }
 
@@ -1306,6 +1390,12 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     if (hidden.present) {
       map['hidden'] = Variable<bool>(hidden.value);
     }
+    if (backgroundColor.present) {
+      map['background_color'] = Variable<String>(backgroundColor.value);
+    }
+    if (excludeFromNetWorth.present) {
+      map['exclude_from_net_worth'] = Variable<bool>(excludeFromNetWorth.value);
+    }
     return map;
   }
 
@@ -1328,7 +1418,9 @@ class AccountsCompanion extends UpdateCompanion<Account> {
           ..write('cardLastFour: $cardLastFour, ')
           ..write('note: $note, ')
           ..write('syncId: $syncId, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('backgroundColor: $backgroundColor, ')
+          ..write('excludeFromNetWorth: $excludeFromNetWorth')
           ..write(')'))
         .toString();
   }
@@ -12811,6 +12903,8 @@ typedef $$AccountsTableCreateCompanionBuilder = AccountsCompanion Function({
   Value<String?> note,
   Value<String?> syncId,
   Value<bool> hidden,
+  Value<String?> backgroundColor,
+  Value<bool> excludeFromNetWorth,
 });
 typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<int> id,
@@ -12830,6 +12924,8 @@ typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<String?> note,
   Value<String?> syncId,
   Value<bool> hidden,
+  Value<String?> backgroundColor,
+  Value<bool> excludeFromNetWorth,
 });
 
 class $$AccountsTableFilterComposer
@@ -12892,6 +12988,14 @@ class $$AccountsTableFilterComposer
 
   ColumnFilters<bool> get hidden => $composableBuilder(
       column: $table.hidden, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get backgroundColor => $composableBuilder(
+      column: $table.backgroundColor,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get excludeFromNetWorth => $composableBuilder(
+      column: $table.excludeFromNetWorth,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountsTableOrderingComposer
@@ -12956,6 +13060,14 @@ class $$AccountsTableOrderingComposer
 
   ColumnOrderings<bool> get hidden => $composableBuilder(
       column: $table.hidden, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get backgroundColor => $composableBuilder(
+      column: $table.backgroundColor,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get excludeFromNetWorth => $composableBuilder(
+      column: $table.excludeFromNetWorth,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountsTableAnnotationComposer
@@ -13017,6 +13129,12 @@ class $$AccountsTableAnnotationComposer
 
   GeneratedColumn<bool> get hidden =>
       $composableBuilder(column: $table.hidden, builder: (column) => column);
+
+  GeneratedColumn<String> get backgroundColor => $composableBuilder(
+      column: $table.backgroundColor, builder: (column) => column);
+
+  GeneratedColumn<bool> get excludeFromNetWorth => $composableBuilder(
+      column: $table.excludeFromNetWorth, builder: (column) => column);
 }
 
 class $$AccountsTableTableManager extends RootTableManager<
@@ -13059,6 +13177,8 @@ class $$AccountsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             Value<String?> syncId = const Value.absent(),
             Value<bool> hidden = const Value.absent(),
+            Value<String?> backgroundColor = const Value.absent(),
+            Value<bool> excludeFromNetWorth = const Value.absent(),
           }) =>
               AccountsCompanion(
             id: id,
@@ -13078,6 +13198,8 @@ class $$AccountsTableTableManager extends RootTableManager<
             note: note,
             syncId: syncId,
             hidden: hidden,
+            backgroundColor: backgroundColor,
+            excludeFromNetWorth: excludeFromNetWorth,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -13097,6 +13219,8 @@ class $$AccountsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             Value<String?> syncId = const Value.absent(),
             Value<bool> hidden = const Value.absent(),
+            Value<String?> backgroundColor = const Value.absent(),
+            Value<bool> excludeFromNetWorth = const Value.absent(),
           }) =>
               AccountsCompanion.insert(
             id: id,
@@ -13116,6 +13240,8 @@ class $$AccountsTableTableManager extends RootTableManager<
             note: note,
             syncId: syncId,
             hidden: hidden,
+            backgroundColor: backgroundColor,
+            excludeFromNetWorth: excludeFromNetWorth,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

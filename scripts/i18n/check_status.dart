@@ -129,7 +129,6 @@ Future<void> checkTranslationCompleteness() async {
 
   for (final lang in languages) {
     final count = keyCount[lang] ?? 0;
-    final name = languageNames[lang] ?? lang;
     final percentage =
         zhCount > 0 ? (count / zhCount * 100).toStringAsFixed(1) : '0.0';
 

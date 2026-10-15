@@ -19,10 +19,10 @@ import '../../services/attachment_service.dart';
 import '../../services/data/tx_author_service.dart';
 
 /// 交易编辑器页面
-/// 支持创建/编辑收入、支出和转账记录
+/// 支持创建/编辑收入和支出记录；转账作为分类入口打开独立表单
 class TransactionEditorPage extends ConsumerStatefulWidget {
   final bool isCopy;
-  final String initialKind; // 'expense', 'income', or 'transfer'
+  final String initialKind; // 'expense', 'income', or legacy 'transfer'
   // quickAdd: 点击分类后在当前弹窗上叠加金额输入
   final bool quickAdd;
   final int? initialCategoryId;
@@ -99,12 +99,10 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 3, vsync: this);
-    // 设置初始tab: 0=支出, 1=收入, 2=转账
+    _tab = TabController(length: 2, vsync: this);
+    // 设置初始tab: 0=支出, 1=收入
     if (widget.initialKind == 'income') {
       _tab.index = 1;
-    } else if (widget.initialKind == 'transfer') {
-      _tab.index = 2;
     } else {
       _tab.index = 0;
     }
@@ -139,6 +137,17 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.initialKind == 'transfer') {
+      return Scaffold(
+        body: Column(
+          children: [
+            PrimaryHeader(title: AppLocalizations.of(context)!.transferTitle, showBack: true),
+            Expanded(child: _transferForm(() => Navigator.pop(context))),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -168,7 +177,6 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
                             tabs: [
                               Tab(text: AppLocalizations.of(context)!.categoryExpense),
                               Tab(text: AppLocalizations.of(context)!.categoryIncome),
-                              Tab(text: AppLocalizations.of(context)!.transferTitle),
                             ],
                           ),
                         ),
@@ -192,28 +200,13 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
                   kind: 'expense',
                   onCategorySelected: (c) => _onCategorySelected(context, c, 'expense'),
                   initialCategoryId: widget.initialCategoryId,
+                  showTransferCategory: true,
                 ),
                 CategorySelector(
                   kind: 'income',
                   onCategorySelected: (c) => _onCategorySelected(context, c, 'income'),
                   initialCategoryId: widget.initialCategoryId,
-                ),
-                TransferForm(
-                  onTransferComplete: () {
-                    // 关闭交易编辑器
-                    Navigator.pop(context);
-                  },
-                  initialFromAccountId: widget.initialAccountId,
-                  initialToAccountId: widget.initialToAccountId,
-                  editingTransactionId: widget.editingTransactionId,
-                  initialAmount: widget.initialAmount,
-                  initialNote: widget.initialNote,
-                  initialDate: widget.initialDate,
-                  initialTagIds: widget.initialTagIds,
-                  initialExcludeFromStats: widget.initialExcludeFromStats,
-                  initialExcludeFromBudget: widget.initialExcludeFromBudget,
-                  initialCurrencyCode: widget.initialCurrencyCode,
-                  initialNativeAmount: widget.initialNativeAmount,
+                  showTransferCategory: true,
                 ),
               ],
             ),
@@ -255,6 +248,26 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
   }
 
   Future<void> _onCategorySelected(BuildContext context, Category c, String kind) async {
+    if (c.kind == 'transfer') {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => Scaffold(
+            body: Column(
+              children: [
+                PrimaryHeader(title: AppLocalizations.of(context)!.transferTitle, showBack: true),
+                Expanded(
+                  child: _transferForm(() {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  }),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      return;
+    }
     if (!widget.quickAdd) {
       Navigator.pop(context, c);
       return;
@@ -463,6 +476,21 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
       ),
     );
   }
+
+  TransferForm _transferForm(VoidCallback onComplete) => TransferForm(
+        onTransferComplete: onComplete,
+        initialFromAccountId: widget.initialAccountId,
+        initialToAccountId: widget.initialToAccountId,
+        editingTransactionId: widget.editingTransactionId,
+        initialAmount: widget.initialAmount,
+        initialNote: widget.initialNote,
+        initialDate: widget.initialDate,
+        initialTagIds: widget.initialTagIds,
+        initialExcludeFromStats: widget.initialExcludeFromStats,
+        initialExcludeFromBudget: widget.initialExcludeFromBudget,
+        initialCurrencyCode: widget.initialCurrencyCode,
+        initialNativeAmount: widget.initialNativeAmount,
+      );
 
   /// §7 v25:account picker 返 synthetic Account(id<0)时,把 id 反查
   /// SharedLedgerAccounts 拿 syncId,写到 tx.accountSyncIdOverride。

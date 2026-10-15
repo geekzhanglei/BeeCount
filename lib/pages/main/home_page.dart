@@ -4,6 +4,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import 'dart:io' show File;
 import '../../providers/budget_providers.dart';
 import '../budget/budget_page.dart';
 import '../../providers.dart';
@@ -11,7 +12,6 @@ import '../settings/personalize_page.dart' show headerStyleProvider;
 import '../../data/db.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
-import '../../widgets/biz/bee_icon.dart';
 import '../../styles/tokens.dart';
 import '../transaction/search_page.dart';
 import '../ai/ai_chat_page.dart';
@@ -27,6 +27,7 @@ import '../../widgets/biz/home_budget_summary.dart';
 import '../../widgets/ai/agent_entry_card.dart';
 import 'ledgers_page_new.dart';
 import '../../providers/shared_ledger_providers.dart';
+import '../../providers/avatar_providers.dart';
 
 // 优化版首页 - 使用FlutterListView实现精准定位和丝滑跳转
 class HomePage extends ConsumerStatefulWidget {
@@ -688,46 +689,47 @@ class _HomePageState extends ConsumerState<HomePage> {
         children: [
           Consumer(builder: (context, ref, _) {
             ref.watch(headerStyleProvider);
-            final hide = ref.watch(hideAmountsProvider);
             return PrimaryHeader(
               title: '',
               showTitleSection: false,
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // 头部 - 左: BeeIcon + 账本切换, 右: 操作按钮
+                  // 首页快捷入口与账本切换
                   SizedBox(
                     height: 48,
                     child: Row(
                       children: [
-                        // 左侧：BeeIcon + 标题 + 账本切换胶囊（用 Expanded 包住，
-                        // 标题在空间富余时显示自然宽度，仅在不够时 ellipsis）
-                        BeeIcon(
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 28,
-                        ),
+                        // 「我的」入口占用原应用图标的位置。
+                        Consumer(builder: (context, ref, _) {
+                          final avatarPath =
+                              ref.watch(avatarPathProvider).asData?.value;
+                          return IconButton(
+                            tooltip: AppLocalizations.of(context).tabMine,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints.tightFor(
+                                width: 32, height: 32),
+                            onPressed: () => ref
+                                .read(bottomTabIndexProvider.notifier)
+                                .state = 3,
+                            icon: CircleAvatar(
+                              radius: 14,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              backgroundImage: avatarPath == null
+                                  ? null
+                                  : FileImage(File(avatarPath)),
+                              child: avatarPath == null
+                                  ? const Icon(Icons.person_rounded,
+                                      color: Colors.white, size: 18)
+                                  : null,
+                            ),
+                          );
+                        }),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Row(
                             children: [
-                              // 标题取自然宽度,溢出时优先压缩账本名而不是 app 名
-                              Text(
-                                AppLocalizations.of(context).homeAppTitle,
-                                maxLines: 1,
-                                softWrap: false,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.color,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                              const SizedBox(width: 6),
                               Expanded(
                                 child: Align(
                                   alignment: AlignmentDirectional.centerStart,
@@ -867,6 +869,22 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                         ),
                         // 右侧操作按钮
+                        IconButton(
+                          tooltip: AppLocalizations.of(context).tabInsights,
+                          padding: const EdgeInsets.all(6),
+                          style: IconButton.styleFrom(
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            minimumSize: Size.zero,
+                          ),
+                          onPressed: () => ref
+                              .read(bottomTabIndexProvider.notifier)
+                              .state = 1,
+                          icon: Icon(
+                            Icons.pie_chart_outline_rounded,
+                            size: 20,
+                            color: Theme.of(context).iconTheme.color,
+                          ),
+                        ),
                         if (aiEnabled)
                           AgentEntryButton(
                             tooltip: AppLocalizations.of(context).aiChatTitle,

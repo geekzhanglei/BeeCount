@@ -383,7 +383,7 @@ abstract class AppLocalizations {
   /// The application title
   ///
   /// In en, this message translates to:
-  /// **'Bee Accounting'**
+  /// **'我在记账'**
   String get appTitle;
 
   /// No description provided for @tabHome.
@@ -8375,7 +8375,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
-  /// **'BeeCount'**
+  /// **'我在记账'**
   String get appName;
 
   /// No description provided for @monthSuffix.
@@ -9461,7 +9461,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutWebsite.
   ///
   /// In en, this message translates to:
-  /// **'Official Website'**
+  /// **'Original Project Website'**
   String get aboutWebsite;
 
   /// No description provided for @aboutGitHubRepo.
@@ -13136,6 +13136,30 @@ abstract class AppLocalizations {
   /// **'Valuation'**
   String get accountTabValuation;
 
+  /// No description provided for @accountTypeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get accountTypeCustom;
+
+  /// No description provided for @accountBackgroundColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Account background color'**
+  String get accountBackgroundColor;
+
+  /// No description provided for @accountExcludeFromNetWorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclude from total assets'**
+  String get accountExcludeFromNetWorth;
+
+  /// No description provided for @accountExcludeFromNetWorthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the account visible, but exclude its balance from net worth and trends'**
+  String get accountExcludeFromNetWorthHint;
+
   /// No description provided for @creditCardDaysRequired.
   ///
   /// In en, this message translates to:
@@ -16189,6 +16213,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log entries: {count}'**
   String logExportCount(int count);
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesTitle;
+
+  /// No description provided for @favoritesAddImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Add images'**
+  String get favoritesAddImages;
+
+  /// No description provided for @favoritesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorite images yet'**
+  String get favoritesEmpty;
+
+  /// No description provided for @favoritesSaveImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save image to favorites'**
+  String get favoritesSaveImage;
+
+  /// No description provided for @favoritesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to favorites'**
+  String get favoritesSaved;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

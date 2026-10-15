@@ -25,12 +25,14 @@ class CategorySelector extends ConsumerStatefulWidget {
 
   /// 初始选中的分类ID（可选）
   final int? initialCategoryId;
+  final bool showTransferCategory;
 
   const CategorySelector({
     super.key,
     required this.kind,
     required this.onCategorySelected,
     this.initialCategoryId,
+    this.showTransferCategory = false,
   });
 
   @override
@@ -99,11 +101,16 @@ class _CategorySelectorState extends ConsumerState<CategorySelector> {
   /// 行,按 kind 过滤;单人账本 / Owner 视角走主表 getTopLevelCategories。
   Future<List<Category>> _loadFilteredTopLevel() async {
     final repo = ref.read(repositoryProvider);
-    final cats = await repo.getTopLevelCategories(widget.kind);
-    if (repo is! LocalRepository) return cats;
+    var cats = await repo.getTopLevelCategories(widget.kind);
+    if (repo is! LocalRepository) {
+      if (widget.showTransferCategory) cats.insert(0, await repo.getTransferCategory());
+      return cats;
+    }
     final currentLedgerId = ref.read(currentLedgerIdProvider);
     final ctx = await repo.db.loadLedgerPickerContext(currentLedgerId);
-    return repo.db.filterCategoriesForLedger(cats, ctx, kind: widget.kind);
+    cats = await repo.db.filterCategoriesForLedger(cats, ctx, kind: widget.kind);
+    if (widget.showTransferCategory) cats.insert(0, await repo.getTransferCategory());
+    return cats;
   }
 
   @override
@@ -434,7 +441,6 @@ class _CategoryItem extends StatelessWidget {
   final VoidCallback onTap;
   final bool selected;
   final bool isSubCategory;
-  final Category? parent;
   final bool hasChildren;
   final bool expanded;
 
@@ -443,7 +449,6 @@ class _CategoryItem extends StatelessWidget {
     required this.onTap,
     this.selected = false,
     this.isSubCategory = false,
-    this.parent,
     this.hasChildren = false,
     this.expanded = false,
   });

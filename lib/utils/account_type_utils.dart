@@ -22,7 +22,12 @@ bool isLiabilityType(String type) {
 
 /// 估值账户类型（资产类）
 const valuationOnlyAssetTypes = [
-  'real_estate', 'vehicle', 'investment', 'insurance', 'social_fund',
+  'real_estate',
+  'vehicle',
+  'investment',
+  'insurance',
+  'social_fund',
+  'custom',
 ];
 
 /// 估值账户类型（负债类）
@@ -42,14 +47,34 @@ bool isTradableType(String type) => !isValuationOnlyType(type);
 
 /// 账户类型常量（完整排序）
 const accountTypeOrder = [
-  'cash', 'bank_card', 'credit_card', 'alipay', 'wechat', 'other',
-  'real_estate', 'vehicle', 'investment', 'insurance', 'social_fund', 'loan',
+  'cash',
+  'bank_card',
+  'credit_card',
+  'alipay',
+  'wechat',
+  'other',
+  'real_estate',
+  'vehicle',
+  'investment',
+  'insurance',
+  'social_fund',
+  'loan',
+  'custom',
 ];
 
 /// 资产类型排序
 const assetTypeOrder = [
-  'cash', 'bank_card', 'alipay', 'wechat', 'other',
-  'real_estate', 'vehicle', 'investment', 'insurance', 'social_fund',
+  'cash',
+  'bank_card',
+  'alipay',
+  'wechat',
+  'other',
+  'real_estate',
+  'vehicle',
+  'investment',
+  'insurance',
+  'social_fund',
+  'custom',
 ];
 
 /// 负债类型排序
@@ -119,6 +144,8 @@ String getAccountTypeLabel(BuildContext context, String type) {
       return l10n.accountTypeSocialFund;
     case 'other':
       return l10n.accountTypeOther;
+    case 'custom':
+      return l10n.accountTypeCustom;
     default:
       return type;
   }
@@ -197,6 +224,7 @@ class AccountTypeIcon extends StatelessWidget {
   final String type;
   final double size;
   final Color? color;
+
   /// 是否以单色模式渲染（忽略 SVG 原始颜色，统一用 [color] 着色）
   final bool monochrome;
 

@@ -337,6 +337,12 @@ extension SyncEngineApplyExt on SyncEngine {
     final hidden = payload.containsKey('hidden')
         ? (payload['hidden'] as bool? ?? false)
         : null;
+    final backgroundColor = payload.containsKey('backgroundColor')
+        ? payload['backgroundColor'] as String?
+        : null;
+    final excludeFromNetWorth = payload.containsKey('excludeFromNetWorth')
+        ? payload['excludeFromNetWorth'] as bool? ?? false
+        : null;
 
     var existing = await (db.select(db.accounts)
           ..where((a) => a.syncId.equals(syncId)))
@@ -376,6 +382,12 @@ extension SyncEngineApplyExt on SyncEngine {
         cardLastFour: d.Value(payload['cardLastFour'] as String?),
         note: d.Value(payload['note'] as String?),
         hidden: hidden == null ? const d.Value.absent() : d.Value(hidden),
+        backgroundColor: payload.containsKey('backgroundColor')
+            ? d.Value(backgroundColor)
+            : const d.Value.absent(),
+        excludeFromNetWorth: excludeFromNetWorth == null
+            ? const d.Value.absent()
+            : d.Value(excludeFromNetWorth),
       ));
       logger.debug('SyncEngine', 'pull: 更新账户 $syncId');
     } else {
@@ -397,6 +409,8 @@ extension SyncEngineApplyExt on SyncEngine {
               note: d.Value(payload['note'] as String?),
               syncId: d.Value(syncId),
               hidden: d.Value(hidden ?? false),
+              backgroundColor: d.Value(backgroundColor),
+              excludeFromNetWorth: d.Value(excludeFromNetWorth ?? false),
             ),
           );
       activePullCache?.putAccount(syncId, localId);
@@ -1044,20 +1058,27 @@ extension SyncEngineApplyExt on SyncEngine {
         // Web 移除前面的图片或复用同一文件重新上传时，身份可以保持不变，
         // 但顺序/原始名称/尺寸仍可能更新。缺失字段兼容旧端，不清空本地值。
         final originalName = attMap.containsKey('originalName')
-            ? attMap['originalName'] as String? : ex.originalName;
+            ? attMap['originalName'] as String?
+            : ex.originalName;
         final fileSize = attMap.containsKey('fileSize')
-            ? attMap['fileSize'] as int? : ex.fileSize;
-        final width = attMap.containsKey('width')
-            ? attMap['width'] as int? : ex.width;
-        final height = attMap.containsKey('height')
-            ? attMap['height'] as int? : ex.height;
+            ? attMap['fileSize'] as int?
+            : ex.fileSize;
+        final width =
+            attMap.containsKey('width') ? attMap['width'] as int? : ex.width;
+        final height =
+            attMap.containsKey('height') ? attMap['height'] as int? : ex.height;
         final sortOrder = attMap['sortOrder'] as int? ?? ex.sortOrder;
         final nextFileId = cloudFileId ?? ex.cloudFileId;
         final nextSha = cloudFileId != null && cloudFileId != ex.cloudFileId
-            ? cloudSha256 : cloudSha256 ?? ex.cloudSha256;
-        if (ex.cloudFileId != nextFileId || ex.cloudSha256 != nextSha ||
-            ex.originalName != originalName || ex.fileSize != fileSize ||
-            ex.width != width || ex.height != height || ex.sortOrder != sortOrder) {
+            ? cloudSha256
+            : cloudSha256 ?? ex.cloudSha256;
+        if (ex.cloudFileId != nextFileId ||
+            ex.cloudSha256 != nextSha ||
+            ex.originalName != originalName ||
+            ex.fileSize != fileSize ||
+            ex.width != width ||
+            ex.height != height ||
+            ex.sortOrder != sortOrder) {
           updates.add((
             id: ex.id,
             data: TransactionAttachmentsCompanion(

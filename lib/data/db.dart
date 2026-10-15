@@ -62,6 +62,9 @@ class Accounts extends Table {
   /// 隐藏:true 时该账户不再出现在记账/转账/周期选择器,账户管理页移入「已隐藏」分区。
   /// 仍计入账户余额、净资产、资产构成、净值趋势(.docs/account-archive/01 §二 D1)。
   BoolColumn get hidden => boolean().withDefault(const Constant(false))();
+  TextColumn get backgroundColor => text().nullable()();
+  BoolColumn get excludeFromNetWorth =>
+      boolean().withDefault(const Constant(false))();
 }
 
 /// 自动汇率本地缓存。日期键 append-only;可随时整表重建 → **不进同步**(README D2)。
@@ -511,7 +514,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 33; // v33: Agent 本地记忆、摘要与审计表
+  int get schemaVersion => 34; // v34: 自定义账户颜色与净资产排除
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1257,6 +1260,12 @@ class BeeDatabase extends _$BeeDatabase {
             );
             await _createAgentMemoryFtsTable();
             logger.info('DBMigration', 'v33 迁移完成');
+          }
+          if (from < 34) {
+            await _addColumnIfMissing('accounts', 'background_color',
+                'ALTER TABLE accounts ADD COLUMN background_color TEXT;');
+            await _addColumnIfMissing('accounts', 'exclude_from_net_worth',
+                'ALTER TABLE accounts ADD COLUMN exclude_from_net_worth INTEGER NOT NULL DEFAULT 0;');
           }
         },
         onCreate: (m) async {

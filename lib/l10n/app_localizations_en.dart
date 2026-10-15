@@ -172,7 +172,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutChangelog => 'Changelog';
 
   @override
-  String get appTitle => 'Bee Accounting';
+  String get appTitle => '我在记账';
 
   @override
   String get tabHome => 'Home';
@@ -4396,7 +4396,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetQuickEntryDesc => 'Tap the left side of the widget to quickly add an expense, or tap the right side to add an income. You can also use beecount://new?type=transfer via Shortcuts to quickly start a transfer.';
 
   @override
-  String get appName => 'BeeCount';
+  String get appName => '我在记账';
 
   @override
   String get monthSuffix => '';
@@ -4965,7 +4965,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutPageLoadingVersion => 'Loading version...';
 
   @override
-  String get aboutWebsite => 'Official Website';
+  String get aboutWebsite => 'Original Project Website';
 
   @override
   String get aboutGitHubRepo => 'GitHub Repository';
@@ -6900,6 +6900,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountTabValuation => 'Valuation';
 
   @override
+  String get accountTypeCustom => 'Custom';
+
+  @override
+  String get accountBackgroundColor => 'Account background color';
+
+  @override
+  String get accountExcludeFromNetWorth => 'Exclude from total assets';
+
+  @override
+  String get accountExcludeFromNetWorthHint => 'Keep the account visible, but exclude its balance from net worth and trends';
+
+  @override
   String get creditCardDaysRequired => 'Please select billing & due dates';
 
   @override
@@ -8615,4 +8627,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String logExportCount(int count) {
     return 'Log entries: $count';
   }
+
+  @override
+  String get favoritesTitle => 'Favorites';
+
+  @override
+  String get favoritesAddImages => 'Add images';
+
+  @override
+  String get favoritesEmpty => 'No favorite images yet';
+
+  @override
+  String get favoritesSaveImage => 'Save image to favorites';
+
+  @override
+  String get favoritesSaved => 'Added to favorites';
 }
