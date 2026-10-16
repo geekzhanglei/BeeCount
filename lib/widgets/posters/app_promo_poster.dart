@@ -157,7 +157,7 @@ class AppPromoPoster extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: ClipOval(
             child: Image.asset(
-              'assets/logo2.png',
+              'assets/brand/app_icon.png',
               fit: BoxFit.cover,
             ),
           ),

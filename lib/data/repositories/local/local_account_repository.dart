@@ -96,6 +96,8 @@ class LocalAccountRepository implements AccountRepository {
     String? syncId,
     String? backgroundColor,
     bool excludeFromNetWorth = false,
+    String accountIcon = 'account_balance_wallet_rounded',
+    String accountTags = '',
   }) async {
     // 撞同名抛 DuplicateNameException(name 全局唯一)。静默路径(import /
     // app-link 等)请改用 [upsertAccount]。
@@ -134,6 +136,8 @@ class LocalAccountRepository implements AccountRepository {
         syncId: d.Value(syncId ?? _uuid.v4()),
         backgroundColor: d.Value(backgroundColor),
         excludeFromNetWorth: d.Value(excludeFromNetWorth),
+        accountIcon: d.Value(accountIcon),
+        accountTags: d.Value(accountTags),
       );
 
       final id = await db.into(db.accounts).insert(companion);
@@ -186,6 +190,8 @@ class LocalAccountRepository implements AccountRepository {
     bool? hidden,
     String? backgroundColor,
     bool? excludeFromNetWorth,
+    String? accountIcon,
+    String? accountTags,
   }) async {
     await (db.update(db.accounts)..where((a) => a.id.equals(id))).write(
       AccountsCompanion(
@@ -228,6 +234,10 @@ class LocalAccountRepository implements AccountRepository {
         excludeFromNetWorth: excludeFromNetWorth == null
             ? const d.Value.absent()
             : d.Value(excludeFromNetWorth),
+        accountIcon:
+            accountIcon == null ? const d.Value.absent() : d.Value(accountIcon),
+        accountTags:
+            accountTags == null ? const d.Value.absent() : d.Value(accountTags),
       ),
     );
   }

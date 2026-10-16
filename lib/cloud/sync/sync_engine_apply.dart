@@ -388,6 +388,13 @@ extension SyncEngineApplyExt on SyncEngine {
         excludeFromNetWorth: excludeFromNetWorth == null
             ? const d.Value.absent()
             : d.Value(excludeFromNetWorth),
+        accountIcon: payload.containsKey('accountIcon')
+            ? d.Value(payload['accountIcon'] as String? ??
+                'account_balance_wallet_rounded')
+            : const d.Value.absent(),
+        accountTags: payload.containsKey('accountTags')
+            ? d.Value(payload['accountTags'] as String? ?? '')
+            : const d.Value.absent(),
       ));
       logger.debug('SyncEngine', 'pull: 更新账户 $syncId');
     } else {
@@ -411,6 +418,9 @@ extension SyncEngineApplyExt on SyncEngine {
               hidden: d.Value(hidden ?? false),
               backgroundColor: d.Value(backgroundColor),
               excludeFromNetWorth: d.Value(excludeFromNetWorth ?? false),
+              accountIcon: d.Value(payload['accountIcon'] as String? ??
+                  'account_balance_wallet_rounded'),
+              accountTags: d.Value(payload['accountTags'] as String? ?? ''),
             ),
           );
       activePullCache?.putAccount(syncId, localId);

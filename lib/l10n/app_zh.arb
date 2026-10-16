@@ -3605,5 +3605,8 @@
   "kellyFormulaExplanation": "公式：f* = (b × p − q) ÷ b。p 为胜率，q 为失败概率，b 为每承担 1 单位亏损时对应的净盈利。",
   "kellyRiskNote": "凯利公式假设胜率与盈亏比估计准确。估计误差会显著影响结果，实际使用可参考较低比例，并结合自身风险承受能力。",
   "kellyWinRateError": "请输入 0 到 100 之间的胜率。",
-  "kellyWinLossRatioError": "请输入大于 0 的盈亏比。"
+  "kellyWinLossRatioError": "请输入大于 0 的盈亏比。",
+  "accountIconPickerTitle": "账户图标",
+  "accountTagsLabel": "账户标签",
+  "accountTagsHint": "多个标签用逗号分隔"
 }

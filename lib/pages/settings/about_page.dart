@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:beecount/widgets/biz/bee_icon.dart';
 
 import '../../providers.dart';
 import '../../widgets/ui/ui.dart';
@@ -75,7 +74,6 @@ class _AboutPageState extends ConsumerState<AboutPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final primary = ref.watch(primaryColorProvider);
     final locale = Localizations.localeOf(context);
 
     return Scaffold(
@@ -105,9 +103,14 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                     ),
                     child: Column(
                       children: [
-                        BeeIcon(
-                          color: primary,
-                          size: 80.0.scaled(context, ref),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            'assets/brand/app_icon.png',
+                            width: 80.0.scaled(context, ref),
+                            height: 80.0.scaled(context, ref),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         SizedBox(height: 16.0.scaled(context, ref)),
                         GestureDetector(

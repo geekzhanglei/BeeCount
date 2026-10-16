@@ -173,7 +173,7 @@ class UserProfilePoster extends StatelessWidget {
                     padding: const EdgeInsets.all(7),
                     child: ClipOval(
                       child: Image.asset(
-                        'assets/logo2.png',
+                        'assets/brand/app_icon.png',
                         fit: BoxFit.cover,
                       ),
                     ),

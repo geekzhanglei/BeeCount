@@ -36,7 +36,9 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   late final TextEditingController _bankNameController;
   late final TextEditingController _cardLastFourController;
   late final TextEditingController _noteController;
+  late final TextEditingController _accountTagsController;
   late String _selectedType;
+  late String _accountIcon;
   late String _selectedCurrency;
   int? _billingDay;
   int? _paymentDueDay;
@@ -92,6 +94,24 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     Color(0xFFFC8452),
     Color(0xFF5470C6),
   ];
+  static const Map<String, IconData> _accountIcons = {
+    'account_balance_wallet_rounded': Icons.account_balance_wallet_rounded,
+    'account_balance': Icons.account_balance,
+    'wallet': Icons.wallet,
+    'savings': Icons.savings,
+    'credit_card': Icons.credit_card,
+    'payments': Icons.payments,
+    'attach_money': Icons.attach_money,
+    'trending_up': Icons.trending_up,
+    'currency_exchange': Icons.currency_exchange,
+    'home': Icons.home,
+    'directions_car': Icons.directions_car,
+    'shield': Icons.shield,
+    'diamond': Icons.diamond,
+    'work': Icons.work,
+    'store': Icons.store,
+    'redeem': Icons.redeem,
+  };
 
   @override
   void initState() {
@@ -117,7 +137,11 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     _cardLastFourController =
         TextEditingController(text: widget.account?.cardLastFour ?? '');
     _noteController = TextEditingController(text: widget.account?.note ?? '');
+    _accountTagsController =
+        TextEditingController(text: widget.account?.accountTags ?? '');
     _selectedType = widget.account?.type ?? 'cash';
+    _accountIcon =
+        widget.account?.accountIcon ?? 'account_balance_wallet_rounded';
     _customBackgroundColor = widget.account?.backgroundColor;
     _excludeFromNetWorth = widget.account?.excludeFromNetWorth ?? false;
     _selectedCurrency = widget.account?.currency ?? 'CNY';
@@ -169,6 +193,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     _bankNameController.dispose();
     _cardLastFourController.dispose();
     _noteController.dispose();
+    _accountTagsController.dispose();
     super.dispose();
   }
 
@@ -969,6 +994,52 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                     ),
                   ],
 
+                  // ===== 账户图标与标签 =====
+                  SizedBox(height: 8.0.scaled(context, ref)),
+                  SectionCard(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0.scaled(context, ref)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.accountIconPickerTitle,
+                              style: _sectionTitle(context)),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 10,
+                            children: _accountIcons.entries.map((entry) {
+                              final selected = entry.key == _accountIcon;
+                              return InkWell(
+                                onTap: () => setState(
+                                    () => _accountIcon = entry.key),
+                                customBorder: const CircleBorder(),
+                                child: CircleAvatar(
+                                  backgroundColor: selected
+                                      ? primaryColor
+                                      : BeeTokens.surfaceElevated(context),
+                                  child: Icon(entry.value,
+                                      color: selected
+                                          ? Colors.white
+                                          : BeeTokens.textSecondary(context)),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(height: 14),
+                          TextFormField(
+                            controller: _accountTagsController,
+                            decoration: filledDec(
+                              label: l10n.accountTagsLabel,
+                              hint: l10n.accountTagsHint,
+                            ),
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                   // ===== 备注（所有类型）=====
                   SizedBox(height: 8.0.scaled(context, ref)),
                   SectionCard(
@@ -1284,6 +1355,12 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           initialBalance: _selectedType == 'custom' ? initialBalance : null,
           backgroundColor: _customBackgroundColor,
           excludeFromNetWorth: _excludeFromNetWorth,
+          accountIcon: _accountIcon,
+          accountTags: _accountTagsController.text
+              .split(RegExp(r'[,，]'))
+              .map((tag) => tag.trim())
+              .where((tag) => tag.isNotEmpty)
+              .join(','),
         );
 
         if (balanceNeedsUpdate) {
@@ -1329,6 +1406,12 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           note: noteText.isNotEmpty ? noteText : null,
           backgroundColor: _customBackgroundColor,
           excludeFromNetWorth: _excludeFromNetWorth,
+          accountIcon: _accountIcon,
+          accountTags: _accountTagsController.text
+              .split(RegExp(r'[,，]'))
+              .map((tag) => tag.trim())
+              .where((tag) => tag.isNotEmpty)
+              .join(','),
         );
 
         // 保存还款提醒设置

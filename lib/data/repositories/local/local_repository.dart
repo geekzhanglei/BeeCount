@@ -1814,6 +1814,8 @@ class LocalRepository extends BaseRepository {
     String? syncId,
     String? backgroundColor,
     bool excludeFromNetWorth = false,
+    String accountIcon = 'account_balance_wallet_rounded',
+    String accountTags = '',
   }) async {
     final id = await _accountRepo.createAccount(
       ledgerId: ledgerId,
@@ -1830,6 +1832,8 @@ class LocalRepository extends BaseRepository {
       syncId: syncId,
       backgroundColor: backgroundColor,
       excludeFromNetWorth: excludeFromNetWorth,
+      accountIcon: accountIcon,
+      accountTags: accountTags,
     );
     if (changeTracker != null) {
       final account = await _accountRepo.getAccount(id);
@@ -1885,6 +1889,8 @@ class LocalRepository extends BaseRepository {
     bool? hidden,
     String? backgroundColor,
     bool? excludeFromNetWorth,
+    String? accountIcon,
+    String? accountTags,
   }) async {
     final account =
         changeTracker != null ? await _accountRepo.getAccount(id) : null;
@@ -1905,6 +1911,8 @@ class LocalRepository extends BaseRepository {
       hidden: hidden,
       backgroundColor: backgroundColor,
       excludeFromNetWorth: excludeFromNetWorth,
+      accountIcon: accountIcon,
+      accountTags: accountTags,
     );
     if (account?.syncId != null) {
       await changeTracker!.recordUserGlobalChange(

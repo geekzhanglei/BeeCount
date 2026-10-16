@@ -30,8 +30,6 @@ import 'services/platform/quick_actions_service.dart';
 import 'services/system/logger_service.dart';
 import 'services/security/app_lock_service.dart';
 import 'providers/security_providers.dart';
-import 'styles/tokens.dart';
-import 'styles/header_skins.dart';
 
 class BeeApp extends ConsumerStatefulWidget {
   const BeeApp({super.key});
@@ -48,10 +46,6 @@ class _BeeAppState extends ConsumerState<BeeApp>
     AccountsPage(asTab: true),
     MinePage(),
   ];
-
-  // 双击检测：记录最后一次点击的时间和索引
-  DateTime? _lastTapTime;
-  int? _lastTappedIndex;
 
   // 双击返回退出：记录最后一次返回键按下时间
   DateTime? _lastBackPressTime;
@@ -688,7 +682,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
       buttonPosition.dy + buttonSize.height / 2,
     );
 
-    final angles = [210.0, 270.0, 330.0];
+    final angles = [180.0, 225.0, 270.0];
     const distance = 85.0;
     const buttonRadius = 26.0;
 
@@ -795,10 +789,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
     final idx = ref.watch(bottomTabIndexProvider);
     final l10n = AppLocalizations.of(context);
     final primaryColor = ref.watch(primaryColorProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     // 头部皮肤可附带悬浮 tab 装饰层(如一周年皮肤),随皮肤选择联动。
-    final headerSkin = headerSkinById(ref.watch(headerSkinProvider));
 
     return PopScope(
       canPop: false,
@@ -834,30 +826,10 @@ class _BeeAppState extends ConsumerState<BeeApp>
               ],
             ),
             bottomNavigationBar: _BeeBottomBar(
-              currentIndex: idx,
               primaryColor: primaryColor,
-              isDark: isDark,
               bottomPadding: bottomPadding,
               l10n: l10n,
-              skin: headerSkin,
               centerButtonKey: _centerButtonKey,
-              onTabTap: (index) {
-                final now = DateTime.now();
-                if (_lastTappedIndex == index &&
-                    _lastTapTime != null &&
-                    now.difference(_lastTapTime!) <
-                        const Duration(milliseconds: 300)) {
-                  if (index == 0) {
-                    ref.read(homeScrollToTopProvider.notifier).state++;
-                  }
-                  _lastTapTime = null;
-                  _lastTappedIndex = null;
-                } else {
-                  _lastTapTime = now;
-                  _lastTappedIndex = index;
-                  ref.read(bottomTabIndexProvider.notifier).state = index;
-                }
-              },
               onCenterTap: () {
                 Navigator.push(
                   context,
@@ -909,28 +881,20 @@ class _BeeAppState extends ConsumerState<BeeApp>
 
 /// Telegram 风格悬浮胶囊底部导航栏
 class _BeeBottomBar extends StatelessWidget {
-  final int currentIndex;
   final Color primaryColor;
-  final bool isDark;
   final double bottomPadding;
   final AppLocalizations l10n;
-  final HeaderSkin? skin;
   final GlobalKey centerButtonKey;
-  final ValueChanged<int> onTabTap;
   final VoidCallback onCenterTap;
   final GestureLongPressStartCallback onCenterLongPressStart;
   final GestureLongPressMoveUpdateCallback onCenterLongPressMoveUpdate;
   final GestureLongPressEndCallback onCenterLongPressEnd;
 
   const _BeeBottomBar({
-    required this.currentIndex,
     required this.primaryColor,
-    required this.isDark,
     required this.bottomPadding,
     required this.l10n,
-    this.skin,
     required this.centerButtonKey,
-    required this.onTabTap,
     required this.onCenterTap,
     required this.onCenterLongPressStart,
     required this.onCenterLongPressMoveUpdate,
@@ -939,143 +903,44 @@ class _BeeBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = BeeTokens.tabBarBackground(context);
-    final inactiveColor = isDark ? Colors.white70 : Colors.black54;
-
-    const barHeight = 56.0;
-
     return SizedBox(
-      height: barHeight + bottomPadding + 12, // 12dp 浮动间距
+      height: 68 + bottomPadding,
       child: Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: bottomPadding + 12,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: BeeTokens.tabBarShadow,
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(28),
-            child: Stack(
-              children: [
-                // 皮肤的悬浮 tab 装饰层(垫在图标之下,不影响点按)
-                if (skin?.tabBarBuilder != null)
-                  Positioned.fill(
-                      child: IgnorePointer(
-                          child: SkinAnimationScope(
-                              child:
-                                  skin!.tabBarBuilder!(primaryColor, isDark)))),
-                Row(
-                  children: [
-                    _buildTabItem(0, Icons.receipt_long_outlined,
-                        Icons.receipt_long, l10n.tabHome, inactiveColor),
-                    // 中间记账按钮（作为 Tab 样式）
-                    _buildCenterTabItem(inactiveColor),
-                    _buildTabItem(
-                        2,
-                        Icons.account_balance_wallet_outlined,
-                        Icons.account_balance_wallet,
-                        l10n.tabAssets,
-                        inactiveColor),
-                  ],
-                ),
-              ],
-            ),
-          ),
+        padding: EdgeInsets.only(right: 16, bottom: bottomPadding + 12),
+        child: Align(
+          alignment: Alignment.bottomRight,
+          child: _buildCenterTabItem(),
         ),
       ),
     );
   }
 
-  Widget _buildTabItem(int index, IconData icon, IconData activeIcon,
-      String label, Color inactiveColor,
-      {String? dotAnchor}) {
-    final isActive = index == currentIndex;
-    final iconColor = isActive ? primaryColor : inactiveColor;
-
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => onTabTap(index),
-        child: Center(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-            decoration: BoxDecoration(
-              color: isActive
-                  ? primaryColor.withValues(alpha: 0.12)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: Column(
+  Widget _buildCenterTabItem() {
+    return GestureDetector(
+      key: centerButtonKey,
+      behavior: HitTestBehavior.opaque,
+      onTap: onCenterTap,
+      onLongPressStart: onCenterLongPressStart,
+      onLongPressMoveUpdate: onCenterLongPressMoveUpdate,
+      onLongPressEnd: onCenterLongPressEnd,
+      child: Material(
+        color: primaryColor,
+        elevation: 5,
+        borderRadius: BorderRadius.circular(28),
+        child: SizedBox(
+          height: 52,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 新功能红点挂在图标上(不是整个 tab),这样位置跟着图标走、
-                // 不会因为 label 长短漂移
-                dotAnchor == null
-                    ? Icon(isActive ? activeIcon : icon,
-                        color: iconColor, size: 22)
-                    : FeatureDot(
-                        anchor: dotAnchor,
-                        offset: const Offset(-2, 0),
-                        child: Icon(isActive ? activeIcon : icon,
-                            color: iconColor, size: 22),
-                      ),
-                const SizedBox(height: 1),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
-                  textScaler: TextScaler.noScaling,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: isActive ? primaryColor : inactiveColor,
-                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  ),
-                ),
+                const Icon(Icons.add_rounded, color: Colors.white, size: 25),
+                const SizedBox(width: 4),
+                Text(l10n.tabRecord,
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w600)),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCenterTabItem(Color inactiveColor) {
-    return Expanded(
-      child: GestureDetector(
-        key: centerButtonKey,
-        behavior: HitTestBehavior.opaque,
-        onTap: onCenterTap,
-        onLongPressStart: onCenterLongPressStart,
-        onLongPressMoveUpdate: onCenterLongPressMoveUpdate,
-        onLongPressEnd: onCenterLongPressEnd,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.add_circle_outline, color: inactiveColor, size: 22),
-              const SizedBox(height: 1),
-              Text(
-                l10n.tabRecord,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                textScaler: TextScaler.noScaling,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: inactiveColor,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
           ),
         ),
       ),
@@ -1110,7 +975,7 @@ class _SpeedDialOverlay extends StatelessWidget {
       buttonPosition.dy + buttonSize.height / 2,
     );
 
-    final angles = [210.0, 270.0, 330.0];
+    final angles = [180.0, 225.0, 270.0];
     const distance = 85.0;
 
     return AnimatedBuilder(

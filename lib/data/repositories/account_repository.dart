@@ -57,6 +57,8 @@ abstract class AccountRepository {
     String? syncId,
     String? backgroundColor,
     bool excludeFromNetWorth = false,
+    String accountIcon = 'account_balance_wallet_rounded',
+    String accountTags = '',
   });
 
   /// 按 name 取账户(name 全局唯一,账户跨账本可用);不存在则建一条。
@@ -93,6 +95,8 @@ abstract class AccountRepository {
     bool? hidden,
     String? backgroundColor,
     bool? excludeFromNetWorth,
+    String? accountIcon,
+    String? accountTags,
   });
 
   /// 隐藏 / 恢复账户(账户隐藏 #240)。内部走 [updateAccount] → 记

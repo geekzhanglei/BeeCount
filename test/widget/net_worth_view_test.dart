@@ -8,7 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:beecount/data/db.dart' show Account;
 import 'package:beecount/widget/views/net_worth_view.dart';
-import 'package:beecount/widget/widget_data_service.dart' show NetWorthAccountItem;
+import 'package:beecount/widget/widget_data_service.dart'
+    show NetWorthAccountItem;
 import 'package:beecount/widget/widget_spec.dart' show HWSize;
 
 void main() {
@@ -19,7 +20,8 @@ void main() {
     );
   }
 
-  List<({DateTime date, double assets, double liabilities, double net})> sampleTrend() {
+  List<({DateTime date, double assets, double liabilities, double net})>
+      sampleTrend() {
     final base = DateTime(2026, 6, 1);
     return List.generate(10, (i) {
       final assets = 100000.0 + i * 500;
@@ -45,6 +47,8 @@ void main() {
       hidden: false,
       backgroundColor: null,
       excludeFromNetWorth: false,
+      accountIcon: 'account_balance_wallet_rounded',
+      accountTags: '',
     );
   }
 

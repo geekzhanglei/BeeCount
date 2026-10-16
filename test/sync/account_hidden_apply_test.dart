@@ -131,6 +131,36 @@ void main() {
     expect(a.hidden, false, reason: '显式 false 应覆盖本地 true');
   });
 
+  test('远端账户图标与标签会同步到本地', () async {
+    final lid = await seedLedger();
+    const accountSyncId = 'ax-custom-fields';
+    final aid = await repo.createAccount(
+      ledgerId: lid,
+      name: 'A',
+      syncId: accountSyncId,
+    );
+    provider.pushFakeChange(
+      entityType: 'account',
+      entitySyncId: accountSyncId,
+      ledgerId: '$lid',
+      payload: {
+        'syncId': accountSyncId,
+        'name': 'A',
+        'type': 'cash',
+        'currency': 'CNY',
+        'initialBalance': 0.0,
+        'sortOrder': 0,
+        'accountIcon': 'savings',
+        'accountTags': '旅行,备用金',
+      },
+    );
+
+    await engine.pull('');
+    final account = await repo.getAccount(aid);
+    expect(account!.accountIcon, 'savings');
+    expect(account.accountTags, '旅行,备用金');
+  });
+
   test('(insert) 远端新增账户带 hidden=true → 本地插入保留', () async {
     final lid = await seedLedger();
     const accountSyncId = 'ax-hidden-3';

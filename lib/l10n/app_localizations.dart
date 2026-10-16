@@ -16309,6 +16309,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a win/loss ratio greater than 0.'**
   String get kellyWinLossRatioError;
+
+  /// No description provided for @accountIconPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account icon'**
+  String get accountIconPickerTitle;
+
+  /// No description provided for @accountTagsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account tags'**
+  String get accountTagsLabel;
+
+  /// No description provided for @accountTagsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate tags with commas'**
+  String get accountTagsHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

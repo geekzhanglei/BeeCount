@@ -65,6 +65,9 @@ class Accounts extends Table {
   TextColumn get backgroundColor => text().nullable()();
   BoolColumn get excludeFromNetWorth =>
       boolean().withDefault(const Constant(false))();
+  TextColumn get accountIcon =>
+      text().withDefault(const Constant('account_balance_wallet_rounded'))();
+  TextColumn get accountTags => text().withDefault(const Constant(''))();
 }
 
 /// 自动汇率本地缓存。日期键 append-only;可随时整表重建 → **不进同步**(README D2)。
@@ -514,7 +517,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 34; // v34: 自定义账户颜色与净资产排除
+  int get schemaVersion => 35; // v35: 账户自定义图标与标签
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1266,6 +1269,12 @@ class BeeDatabase extends _$BeeDatabase {
                 'ALTER TABLE accounts ADD COLUMN background_color TEXT;');
             await _addColumnIfMissing('accounts', 'exclude_from_net_worth',
                 'ALTER TABLE accounts ADD COLUMN exclude_from_net_worth INTEGER NOT NULL DEFAULT 0;');
+          }
+          if (from < 35) {
+            await _addColumnIfMissing('accounts', 'account_icon',
+                "ALTER TABLE accounts ADD COLUMN account_icon TEXT NOT NULL DEFAULT 'account_balance_wallet_rounded';");
+            await _addColumnIfMissing('accounts', 'account_tags',
+                "ALTER TABLE accounts ADD COLUMN account_tags TEXT NOT NULL DEFAULT '';");
           }
         },
         onCreate: (m) async {
