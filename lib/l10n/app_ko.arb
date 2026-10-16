@@ -2191,5 +2191,8 @@
   "kellyFormulaExplanation": "공식: f* = (b × p − q) ÷ b. p는 승률, q는 패배 확률, b는 1단위 손실당 순이익입니다.",
   "kellyRiskNote": "이 공식은 승률과 손익비를 정확히 추정했다고 가정합니다. 추정 오차는 결과를 크게 바꿀 수 있으므로 더 낮은 비율과 본인의 위험 감수 수준을 고려하세요.",
   "kellyWinRateError": "승률을 0에서 100 사이로 입력하세요.",
-  "kellyWinLossRatioError": "손익비를 0보다 크게 입력하세요."
+  "kellyWinLossRatioError": "손익비를 0보다 크게 입력하세요.",
+  "accountIconPickerTitle": "계정 아이콘",
+  "accountTagsLabel": "계정 태그",
+  "accountTagsHint": "여러 태그는 쉼표로 구분하세요"
 }

@@ -37,7 +37,7 @@ class SplashPage extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Image.asset(
-                    'assets/logo2.png',
+                    'assets/brand/app_icon.png',
                     fit: BoxFit.contain,
                   ),
                 ),

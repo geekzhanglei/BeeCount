@@ -8675,4 +8675,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get kellyWinLossRatioError => '손익비를 0보다 크게 입력하세요.';
+
+  @override
+  String get accountIconPickerTitle => '계정 아이콘';
+
+  @override
+  String get accountTagsLabel => '계정 태그';
+
+  @override
+  String get accountTagsHint => '여러 태그는 쉼표로 구분하세요';
 }

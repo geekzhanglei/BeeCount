@@ -97,6 +97,8 @@ class EntitySerializer {
       if (account.backgroundColor != null)
         'backgroundColor': account.backgroundColor,
       'excludeFromNetWorth': account.excludeFromNetWorth,
+      'accountIcon': account.accountIcon,
+      'accountTags': account.accountTags,
     };
   }
 

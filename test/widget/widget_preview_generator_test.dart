@@ -357,6 +357,8 @@ Account _account(int id, String name, {String type = 'bank'}) => Account(
       sortOrder: id,
       hidden: false,
       excludeFromNetWorth: false,
+      accountIcon: 'account_balance_wallet_rounded',
+      accountTags: '',
     );
 
 Category _category(int id, String name, String icon) => Category(

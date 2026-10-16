@@ -320,6 +320,8 @@ class LocalTransactionRepository implements TransactionRepository {
       hidden: false,
       backgroundColor: null,
       excludeFromNetWorth: false,
+      accountIcon: 'account_balance_wallet_rounded',
+      accountTags: '',
     );
   }
 
@@ -1356,6 +1358,8 @@ class LocalTransactionRepository implements TransactionRepository {
               hidden: false,
               backgroundColor: null,
               excludeFromNetWorth: false,
+              accountIcon: 'account_balance_wallet_rounded',
+              accountTags: '',
             );
           }
         }

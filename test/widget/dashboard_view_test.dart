@@ -9,9 +9,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:beecount/data/db.dart' show Account, Category, Transaction;
 import 'package:beecount/widget/views/dashboard_view.dart';
-import 'package:beecount/widget/views/recent_view.dart' show RecentTransactionRow;
+import 'package:beecount/widget/views/recent_view.dart'
+    show RecentTransactionRow;
 import 'package:beecount/widget/widget_data_service.dart'
-    show DashboardWidgetData, GlanceWidgetData, QuickAddCategoryItem, RecentTransactionItem;
+    show
+        DashboardWidgetData,
+        GlanceWidgetData,
+        QuickAddCategoryItem,
+        RecentTransactionItem;
 import 'package:beecount/widget/widget_spec.dart' show HWSize;
 
 void main() {
@@ -69,6 +74,8 @@ void main() {
       hidden: false,
       backgroundColor: null,
       excludeFromNetWorth: false,
+      accountIcon: 'account_balance_wallet_rounded',
+      accountTags: '',
     );
   }
 

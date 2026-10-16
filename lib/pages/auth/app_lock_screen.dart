@@ -4,10 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../providers/security_providers.dart';
-import '../../providers/theme_providers.dart';
 import '../../services/security/app_lock_service.dart';
 import '../../widgets/biz/pin_entry_pad.dart';
-import '../../widgets/biz/bee_icon.dart';
 import '../../l10n/app_localizations.dart';
 
 class AppLockScreen extends ConsumerStatefulWidget {
@@ -98,7 +96,6 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final primaryColor = ref.watch(primaryColorProvider);
     final showBiometric = _biometricAvailable && _biometricEnabled;
 
     return Scaffold(
@@ -108,9 +105,14 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
           children: [
             const Spacer(flex: 2),
             // Logo
-            BeeIcon(
-              color: primaryColor,
-              size: 64.0.scaled(context, ref),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                'assets/brand/app_icon.png',
+                width: 64.0.scaled(context, ref),
+                height: 64.0.scaled(context, ref),
+                fit: BoxFit.cover,
+              ),
             ),
             SizedBox(height: 24.0.scaled(context, ref)),
             // 标题

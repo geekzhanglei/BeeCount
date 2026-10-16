@@ -111,7 +111,10 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
           // ======== 简洁 Header ========
           PrimaryHeader(
             title: l10n.accountsTitle,
-            showBack: !widget.asTab,
+            showBack: true,
+            onBack: widget.asTab
+                ? () => ref.read(bottomTabIndexProvider.notifier).state = 0
+                : null,
             compact: true,
             // 顺序(左 → 右):加号 / 设置。
             actions: [
@@ -1965,6 +1968,11 @@ class _AccountCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final isDark = BeeTokens.isDark(context);
+    final tags = account.accountTags
+        .split(',')
+        .map((tag) => tag.trim())
+        .where((tag) => tag.isNotEmpty)
+        .toList();
 
     return GestureDetector(
       onTap: onTap,
@@ -2029,9 +2037,10 @@ class _AccountCard extends ConsumerWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: AccountTypeIcon(
-                              type: account.type,
+                            child: Icon(
+                              _accountIconFor(account.accountIcon),
                               size: 18.0.scaled(context, ref),
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -2076,6 +2085,37 @@ class _AccountCard extends ConsumerWidget {
                                   ),
                                 ),
                               ),
+                              ...tags.take(2).map((tag) => Padding(
+                                    padding: const EdgeInsets.only(left: 4),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                          child: ConstrainedBox(
+                                            constraints: const BoxConstraints(
+                                                maxWidth: 56),
+                                            child: Text(tag,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.95),
+                                                )),
+                                          ),
+                                    ),
+                                  )),
+                              if (tags.length > 2)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: Text('+${tags.length - 2}',
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 10)),
+                                ),
                             ],
                           ),
                         ),
@@ -2408,6 +2448,25 @@ class _AccountCard extends ConsumerWidget {
     );
   }
 }
+
+IconData _accountIconFor(String name) => switch (name) {
+      'account_balance' => Icons.account_balance,
+      'wallet' => Icons.wallet,
+      'savings' => Icons.savings,
+      'credit_card' => Icons.credit_card,
+      'payments' => Icons.payments,
+      'attach_money' => Icons.attach_money,
+      'trending_up' => Icons.trending_up,
+      'currency_exchange' => Icons.currency_exchange,
+      'home' => Icons.home,
+      'directions_car' => Icons.directions_car,
+      'shield' => Icons.shield,
+      'diamond' => Icons.diamond,
+      'work' => Icons.work,
+      'store' => Icons.store,
+      'redeem' => Icons.redeem,
+      _ => Icons.account_balance_wallet_rounded,
+    };
 
 /// 卡片内统计项
 class _CardStat extends StatelessWidget {

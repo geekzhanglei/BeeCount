@@ -1,7 +1,6 @@
 import 'dart:io' show File;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:beecount/widgets/biz/bee_icon.dart';
 
 import '../../providers.dart';
 import '../../widgets/ui/ui.dart';
@@ -43,7 +42,6 @@ class MinePage extends ConsumerWidget {
       body: Column(
         children: [
           PrimaryHeader(
-            showBack: false,
             title: AppLocalizations.of(context).mineTitle,
             compact: true,
             showTitleSection: false,
@@ -900,18 +898,19 @@ class _MinePageHeaderState extends ConsumerState<_MinePageHeader> {
                                     File(effectiveAvatarPath),
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
-                                      return BeeIcon(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        size: 40.0.scaled(context, ref),
+                                      return Image.asset(
+                                        'assets/brand/app_icon.png',
+                                        width: 80.0.scaled(context, ref),
+                                        height: 80.0.scaled(context, ref),
+                                        fit: BoxFit.cover,
                                       );
                                     },
                                   )
-                                : BeeIcon(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 40.0.scaled(context, ref),
+                                : Image.asset(
+                                    'assets/brand/app_icon.png',
+                                    width: 80.0.scaled(context, ref),
+                                    height: 80.0.scaled(context, ref),
+                                    fit: BoxFit.cover,
                                   )),
                       ),
                     ),
@@ -1014,9 +1013,38 @@ class _MinePageHeaderState extends ConsumerState<_MinePageHeader> {
                       centered: true,
                     ),
                   ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () =>
+                          ref.read(bottomTabIndexProvider.notifier).state = 2,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Column(
+                        children: [
+                          Icon(Icons.account_balance_wallet_outlined,
+                              size: 22, color: BeeTokens.textPrimary(context)),
+                          SizedBox(height: 4.0.scaled(context, ref)),
+                          Text(AppLocalizations.of(context).tabAssets,
+                              style: labelStyle),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
+          ),
+          Positioned(
+            left: 0,
+            top: 0,
+            child: IconButton(
+              tooltip: AppLocalizations.of(context).commonBack,
+              onPressed: () =>
+                  ref.read(bottomTabIndexProvider.notifier).state = 0,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon:
+                  Icon(Icons.arrow_back, color: BeeTokens.textPrimary(context)),
+            ),
           ),
         ],
       ),

@@ -8675,4 +8675,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kellyWinLossRatioError => 'Enter a win/loss ratio greater than 0.';
+
+  @override
+  String get accountIconPickerTitle => 'Account icon';
+
+  @override
+  String get accountTagsLabel => 'Account tags';
+
+  @override
+  String get accountTagsHint => 'Separate tags with commas';
 }

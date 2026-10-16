@@ -8667,6 +8667,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get kellyWinLossRatioError => '请输入大于 0 的盈亏比。';
+
+  @override
+  String get accountIconPickerTitle => '账户图标';
+
+  @override
+  String get accountTagsLabel => '账户标签';
+
+  @override
+  String get accountTagsHint => '多个标签用逗号分隔';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -17332,4 +17341,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get kellyWinLossRatioError => '請輸入大於 0 的盈虧比。';
+
+  @override
+  String get accountIconPickerTitle => '帳戶圖示';
+
+  @override
+  String get accountTagsLabel => '帳戶標籤';
+
+  @override
+  String get accountTagsHint => '多個標籤以逗號分隔';
 }

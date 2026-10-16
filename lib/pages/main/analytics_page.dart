@@ -465,6 +465,17 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               child: Row(
                 children: [
+                  IconButton(
+                    tooltip: AppLocalizations.of(context).commonBack,
+                    onPressed: () => ref
+                        .read(bottomTabIndexProvider.notifier)
+                        .state = 0,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(Icons.arrow_back,
+                        color: BeeTokens.textPrimary(context)),
+                  ),
+                  const SizedBox(width: 8),
                   Icon(Icons.bar_chart_outlined,
                       color: BeeTokens.textPrimary(context)),
                   const SizedBox(width: 8),

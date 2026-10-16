@@ -495,7 +495,7 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
 
     try {
       // Precache logo image
-      await precacheImage(const AssetImage('assets/logo2.png'), context);
+      await precacheImage(const AssetImage('assets/brand/app_icon.png'), context);
 
       // Create poster widget
       final posterKey = GlobalKey();
