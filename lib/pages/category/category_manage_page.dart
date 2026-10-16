@@ -595,12 +595,19 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
     // 获取当前类型的一级分类
     final topLevelCategories = widget.categoriesWithCount
         .where((item) =>
-            item.category.kind == widget.kind &&
-            item.category.level == 1)
+            (item.category.kind == widget.kind ||
+                item.category.kind == 'transfer') &&
+            item.category.level == 1 &&
+            item.category.parentId == null)
         .toList();
 
-    // 按 sortOrder 排序
-    topLevelCategories.sort((a, b) => a.category.sortOrder.compareTo(b.category.sortOrder));
+    // The transaction picker pins transfer first, then uses sortOrder for the rest.
+    topLevelCategories.sort((a, b) {
+      if (a.category.kind == 'transfer') return -1;
+      if (b.category.kind == 'transfer') return 1;
+      final order = a.category.sortOrder.compareTo(b.category.sortOrder);
+      return order != 0 ? order : a.category.id.compareTo(b.category.id);
+    });
 
     // 构建父分类ID集合，用于快速判断是否有子分类
     final parentIds = widget.categoriesWithCount
@@ -686,6 +693,10 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
     final reorderedItems = List<_CategoryItem>.from(topLevelCategories);
     final movedItem = reorderedItems.removeAt(oldIndex);
     reorderedItems.insert(newIndex, movedItem);
+    final transferItems =
+        reorderedItems.where((item) => item.category.kind == 'transfer').toList();
+    reorderedItems.removeWhere((item) => item.category.kind == 'transfer');
+    reorderedItems.insertAll(0, transferItems);
 
     // 重建 _flatList，保持一级分类的新顺序
     setState(() {
@@ -711,6 +722,7 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
 
 
   void _onCategoryTap(_CategoryItem item) async {
+    if (item.category.kind == 'transfer') return;
     if (item.isSubCategory) {
       await _onEditCategory(item.category);
     } else {

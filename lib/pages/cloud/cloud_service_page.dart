@@ -3,7 +3,6 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
@@ -17,9 +16,6 @@ import '../../widgets/biz/section_card.dart';
 import '../../styles/tokens.dart';
 import '../../l10n/app_localizations.dart';
 
-// GitHub配置教程链接
-const _kSupabaseGuideUrl = 'https://github.com/TNT-Likely/BeeCount/wiki/Supabase-%E4%BA%91%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE';
-
 class CloudServicePage extends ConsumerStatefulWidget {
   const CloudServicePage({super.key});
   @override
@@ -30,7 +26,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
   bool _testingConnection = false;
   final Map<String, bool> _connectionTestResults = {};
   bool _hasAutoTested = false;
-  String _selectedTab = 'offline'; // 'offline' | 'backup' | 'cloud'
+  String _selectedTab = 'offline'; // 'offline' | 'backup'
 
   @override
   void initState() {
@@ -41,9 +37,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       final activeAsync = ref.read(activeCloudConfigProvider);
       if (activeAsync.hasValue) {
         final active = activeAsync.value!;
-        if (active.type == CloudBackendType.beecountCloud) {
-          setState(() => _selectedTab = 'cloud');
-        } else if (active.type != CloudBackendType.local) {
+        if (active.type != CloudBackendType.local) {
           setState(() => _selectedTab = 'backup');
         }
       }
@@ -73,10 +67,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
   @override
   Widget build(BuildContext context) {
     final activeAsync = ref.watch(activeCloudConfigProvider);
-    final beecountCloudAsync = ref.watch(beecountCloudConfigProvider);
-    final supabaseAsync = ref.watch(supabaseConfigProvider);
     final webdavAsync = ref.watch(webdavConfigProvider);
-    final s3Async = ref.watch(s3ConfigProvider);
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
@@ -125,7 +116,6 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
               options: [
                 CapsuleOption(value: 'offline', label: AppLocalizations.of(context).cloudTabOffline),
                 CapsuleOption(value: 'backup', label: AppLocalizations.of(context).cloudTabBackup),
-                CapsuleOption(value: 'cloud', label: AppLocalizations.of(context).cloudTabCloudSync),
               ],
               onChanged: (value) => setState(() => _selectedTab = value),
             ),
@@ -152,7 +142,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                       ),
                     ],
                   );
-                } else if (_selectedTab == 'backup') {
+                } else {
                   // ===== 备份同步 =====
                   return ListView(
                     padding: const EdgeInsets.all(16),
@@ -166,7 +156,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
 
                       // iCloud (仅 iOS)
                       if (!kIsWeb && Platform.isIOS) ...[
-                        _buildICloudCard(context, active, isDisabled: false),
+                        _buildICloudCard(context, active, isDisabled: true),
                         const SizedBox(height: 12),
                       ],
 
@@ -197,87 +187,6 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
 
                       const SizedBox(height: 12),
 
-                      // S3
-                      s3Async.when(
-                        loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
-                        error: (e, _) => const SizedBox.shrink(),
-                        data: (s3Cfg) => _buildServiceCard(
-                          context: context,
-                          icon: Icons.storage,
-                          iconColor: BeeTokens.brandS3,
-                          title: AppLocalizations.of(context).cloudCustomS3Title,
-                          subtitle: s3Cfg?.valid == true
-                              ? s3Cfg!.obfuscatedUrl()
-                              : AppLocalizations.of(context).cloudCustomS3Subtitle,
-                          isSelected: active.type == CloudBackendType.s3,
-                          isConfigured: s3Cfg?.valid == true,
-                          isDisabled: false,
-                          onTap: () => s3Cfg?.valid == true
-                              ? _switchService(CloudBackendType.s3)
-                              : _configureService(CloudBackendType.s3),
-                          onConfigure: s3Cfg?.valid == true
-                              ? () => _configureService(CloudBackendType.s3)
-                              : null,
-                          onShowGuide: _showS3HelpDialog,
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Supabase
-                      supabaseAsync.when(
-                        loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
-                        error: (e, _) => const SizedBox.shrink(),
-                        data: (supabaseCfg) => _buildServiceCard(
-                          context: context,
-                          icon: Icons.cloud,
-                          iconColor: BeeTokens.brandSupabase,
-                          title: AppLocalizations.of(context).cloudCustomSupabaseTitle,
-                          subtitle: supabaseCfg?.valid == true
-                              ? supabaseCfg!.obfuscatedUrl()
-                              : AppLocalizations.of(context).cloudCustomSupabaseSubtitle,
-                          isSelected: active.type == CloudBackendType.supabase,
-                          isConfigured: supabaseCfg?.valid == true,
-                          isDisabled: false,
-                          onTap: () => supabaseCfg?.valid == true
-                              ? _switchService(CloudBackendType.supabase)
-                              : _configureService(CloudBackendType.supabase),
-                          onConfigure: supabaseCfg?.valid == true
-                              ? () => _configureService(CloudBackendType.supabase)
-                              : null,
-                          onShowGuide: _showSupabaseHelpDialog,
-                        ),
-                      ),
-                    ],
-                  );
-                } else {
-                  // ===== 云端协同 (BeeCount Cloud) =====
-                  return ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      beecountCloudAsync.when(
-                        loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
-                        error: (e, _) => const SizedBox.shrink(),
-                        data: (bcCfg) => _buildServiceCard(
-                          context: context,
-                          icon: Icons.cloud_circle,
-                          iconColor: BeeTokens.brandCloud,
-                          title: AppLocalizations.of(context).cloudBeeCountCloudTitle,
-                          subtitle: bcCfg?.valid == true
-                              ? bcCfg!.obfuscatedUrl()
-                              : AppLocalizations.of(context).cloudBeeCountCloudSubtitle,
-                          isSelected: active.type == CloudBackendType.beecountCloud,
-                          isConfigured: bcCfg?.valid == true,
-                          isDisabled: false,
-                          onTap: () => bcCfg?.valid == true
-                              ? _switchService(CloudBackendType.beecountCloud)
-                              : _configureService(CloudBackendType.beecountCloud),
-                          onConfigure: bcCfg?.valid == true
-                              ? () => _configureService(CloudBackendType.beecountCloud)
-                              : null,
-                          onShowGuide: _showBeeCountCloudHelpDialog,
-                        ),
-                      ),
                     ],
                   );
                 }
@@ -841,252 +750,6 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
   }
 
 
-  void _showSupabaseHelpDialog() {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.cloud, color: BeeTokens.brandSupabase),
-            const SizedBox(width: 8),
-            Text(l10n.cloudSupabaseHelpTitle),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildHelpSection(
-                l10n.cloudSupabaseHelpIntro,
-                [
-                  l10n.cloudSupabaseHelpIntro1,
-                  l10n.cloudSupabaseHelpIntro2,
-                  l10n.cloudSupabaseHelpIntro3,
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildHelpSection(
-                l10n.cloudSupabaseHelpSteps,
-                [
-                  l10n.cloudSupabaseHelpStep1,
-                  l10n.cloudSupabaseHelpStep2,
-                  l10n.cloudSupabaseHelpStep3,
-                  l10n.cloudSupabaseHelpStep4,
-                  l10n.cloudSupabaseHelpStep5,
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildHelpSection(
-                l10n.cloudSupabaseHelpFaq,
-                [
-                  '• ${l10n.cloudSupabaseHelpFaq1}',
-                  '• ${l10n.cloudSupabaseHelpFaq2}',
-                  '• ${l10n.cloudSupabaseHelpFaq3}',
-                ],
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: BeeTokens.brandSupabase.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: BeeTokens.brandSupabase, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        l10n.cloudSupabaseHelpNote,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: BeeTokens.textSecondary(context),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => _openGuide(_kSupabaseGuideUrl),
-            child: Text(l10n.cloudDetailedTutorial),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.commonConfirm),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showBeeCountCloudHelpDialog() {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.cloud_circle, color: BeeTokens.brandCloud),
-            const SizedBox(width: 8),
-            Text(l10n.cloudTutorialTitle),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 介绍
-              Text(
-                l10n.cloudTutorialIntro,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: BeeTokens.textSecondary(context),
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 16),
-              // 4 步教程
-              _buildBeeCloudStep('1', l10n.cloudTutorialStep1Title, l10n.cloudTutorialStep1Desc),
-              _buildBeeCloudStep('2', l10n.cloudTutorialStep2Title, l10n.cloudTutorialStep2Desc),
-              _buildBeeCloudStep('3', l10n.cloudTutorialStep3Title, l10n.cloudTutorialStep3Desc),
-              _buildBeeCloudStep('4', l10n.cloudTutorialStep4Title, l10n.cloudTutorialStep4Desc),
-              const SizedBox(height: 4),
-              // 特色功能 —— 强调 Web + 多设备协同 + 多用户 + 共享账本
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: BeeTokens.brandCloud.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.cloudTutorialFeaturesTitle,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: BeeTokens.brandCloud,
-                        fontSize: 13,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(l10n.cloudTutorialFeature1, style: const TextStyle(fontSize: 12.5, height: 1.7)),
-                    Text(l10n.cloudTutorialFeature2, style: const TextStyle(fontSize: 12.5, height: 1.7)),
-                    Text(l10n.cloudTutorialFeature3, style: const TextStyle(fontSize: 12.5, height: 1.7)),
-                    Text(l10n.cloudTutorialFeature4, style: const TextStyle(fontSize: 12.5, height: 1.7)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Tip
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: BeeTokens.brandCloud.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.info_outline, color: BeeTokens.brandCloud, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '${l10n.cloudTutorialTipTitle}: ',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: BeeTokens.textSecondary(context),
-                              ),
-                            ),
-                            TextSpan(
-                              text: l10n.cloudTutorialTipDesc,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: BeeTokens.textSecondary(context),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.cloudTutorialGotIt),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBeeCloudStep(String num, String title, String desc) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              color: BeeTokens.brandCloud,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              num,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    )),
-                const SizedBox(height: 3),
-                Text(
-                  desc,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: BeeTokens.textSecondary(context),
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showWebdavHelpDialog() {
     final l10n = AppLocalizations.of(context);
     showDialog(
@@ -1250,91 +913,6 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
     );
   }
 
-  void _showS3HelpDialog() {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.storage, color: BeeTokens.brandS3),
-            const SizedBox(width: 8),
-            Text(l10n.cloudS3HelpTitle),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildHelpSection(
-                l10n.cloudS3HelpIntro,
-                [
-                  l10n.cloudS3HelpIntro1,
-                  l10n.cloudS3HelpIntro2,
-                  l10n.cloudS3HelpIntro3,
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildHelpSection(
-                l10n.cloudS3HelpProviders,
-                [
-                  l10n.cloudS3HelpProvider1,
-                  l10n.cloudS3HelpProvider2,
-                  l10n.cloudS3HelpProvider3,
-                  l10n.cloudS3HelpProvider4,
-                  l10n.cloudS3HelpProvider5,
-                  l10n.cloudS3HelpProvider6,
-                  l10n.cloudS3HelpProvider7,
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildHelpSection(
-                l10n.cloudS3HelpSteps,
-                [
-                  l10n.cloudS3HelpStep1,
-                  l10n.cloudS3HelpStep2,
-                  l10n.cloudS3HelpStep3,
-                  l10n.cloudS3HelpStep4,
-                  l10n.cloudS3HelpStep5,
-                ],
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: BeeTokens.brandS3.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: BeeTokens.brandS3, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        l10n.cloudS3HelpNote,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: BeeTokens.textSecondary(context),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.commonConfirm),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildHelpSection(String title, List<String> items) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1360,17 +938,6 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
         )),
       ],
     );
-  }
-
-  Future<void> _openGuide(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        showToast(context, AppLocalizations.of(context).cloudCannotOpenLink);
-      }
-    }
   }
 
   Future<void> _switchService(CloudBackendType type) async {

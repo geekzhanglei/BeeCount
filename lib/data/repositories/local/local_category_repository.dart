@@ -229,7 +229,10 @@ class LocalCategoryRepository implements CategoryRepository {
   Future<List<Category>> getTopLevelCategories(String kind) async {
     return await (db.select(db.categories)
           ..where((c) => c.kind.equals(kind) & c.level.equals(1) & c.parentId.isNull())
-          ..orderBy([(c) => d.OrderingTerm(expression: c.sortOrder)]))
+          ..orderBy([
+            (c) => d.OrderingTerm(expression: c.sortOrder),
+            (c) => d.OrderingTerm(expression: c.id),
+          ]))
         .get();
   }
 
@@ -752,6 +755,7 @@ class LocalCategoryRepository implements CategoryRepository {
       FROM categories c
       LEFT JOIN transactions t ON t.category_id = c.id
       WHERE c.kind != 'transfer'
+         OR c.id = (SELECT MIN(id) FROM categories WHERE kind = 'transfer')
       GROUP BY c.id, c.name, c.kind, c.icon, c.sort_order, c.parent_id, c.level, c.icon_type, c.custom_icon_path, c.community_icon_id
       ORDER BY c.sort_order
       ''',

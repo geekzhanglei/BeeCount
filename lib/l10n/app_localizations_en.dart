@@ -8642,4 +8642,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get favoritesSaved => 'Added to favorites';
+
+  @override
+  String get widgetsTitle => 'Tools';
+
+  @override
+  String get kellyFormulaTitle => 'Kelly Criterion';
+
+  @override
+  String get kellyWinRate => 'Estimated win rate (%)';
+
+  @override
+  String get kellyWinLossRatio => 'Win/loss ratio (profit/loss)';
+
+  @override
+  String get kellyFullKelly => 'Theoretical stake (Full Kelly)';
+
+  @override
+  String get kellyHalfKelly => 'Reference stake (Half Kelly)';
+
+  @override
+  String get kellyNoEdge => 'These inputs show no positive edge; suggested stake is 0%.';
+
+  @override
+  String get kellyFormulaExplanation => 'Formula: f* = (b × p − q) ÷ b. p is win probability, q is loss probability, and b is net profit per unit lost.';
+
+  @override
+  String get kellyRiskNote => 'The formula assumes accurate estimates of win probability and payout ratio. Estimation errors can materially change the result; consider a smaller fraction and your own risk tolerance.';
+
+  @override
+  String get kellyWinRateError => 'Enter a win rate from 0 to 100.';
+
+  @override
+  String get kellyWinLossRatioError => 'Enter a win/loss ratio greater than 0.';
 }

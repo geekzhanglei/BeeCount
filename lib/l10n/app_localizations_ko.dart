@@ -8642,4 +8642,37 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get favoritesSaved => 'Added to favorites';
+
+  @override
+  String get widgetsTitle => '도구';
+
+  @override
+  String get kellyFormulaTitle => '켈리 공식';
+
+  @override
+  String get kellyWinRate => '예상 승률(%)';
+
+  @override
+  String get kellyWinLossRatio => '손익비(수익/손실)';
+
+  @override
+  String get kellyFullKelly => '이론 비중(풀 켈리)';
+
+  @override
+  String get kellyHalfKelly => '참고 비중(하프 켈리)';
+
+  @override
+  String get kellyNoEdge => '현재 입력값에는 양의 기대값이 없습니다. 권장 비중은 0%입니다.';
+
+  @override
+  String get kellyFormulaExplanation => '공식: f* = (b × p − q) ÷ b. p는 승률, q는 패배 확률, b는 1단위 손실당 순이익입니다.';
+
+  @override
+  String get kellyRiskNote => '이 공식은 승률과 손익비를 정확히 추정했다고 가정합니다. 추정 오차는 결과를 크게 바꿀 수 있으므로 더 낮은 비율과 본인의 위험 감수 수준을 고려하세요.';
+
+  @override
+  String get kellyWinRateError => '승률을 0에서 100 사이로 입력하세요.';
+
+  @override
+  String get kellyWinLossRatioError => '손익비를 0보다 크게 입력하세요.';
 }

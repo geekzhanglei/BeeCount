@@ -79,4 +79,28 @@ void main() {
       );
     });
   });
+
+  test('管理页与记账选择器共享一级分类顺序和转账项', () async {
+    final firstId = await repo.createCategory(
+      name: '餐饮',
+      kind: 'expense',
+      sortOrder: 0,
+    );
+    final secondId = await repo.createCategory(
+      name: '交通',
+      kind: 'expense',
+      sortOrder: 0,
+    );
+    await repo.createCategory(
+      name: '转账',
+      kind: 'transfer',
+      sortOrder: -1,
+    );
+
+    final topLevel = await repo.getTopLevelCategories('expense');
+    expect(topLevel.map((category) => category.id), [firstId, secondId]);
+
+    final managed = await repo.watchCategoriesWithCount().first;
+    expect(managed.any((item) => item.category.kind == 'transfer'), isTrue);
+  });
 }
