@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' show Color;
+import 'dart:ui' show Color, Locale;
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
@@ -26,6 +26,7 @@ import 'voice_billing_providers.dart';
 import '../services/attachment_service.dart' show attachmentListRefreshProvider;
 import '../services/system/logger_service.dart';
 import '../services/ui/avatar_service.dart';
+import '../services/app_profile_sync_service.dart';
 import '../models/note_history.dart';
 import '../styles/header_skins.dart'
     show boundPrimaryOf, headerSkinById, kHeaderSkinNone;
@@ -38,6 +39,10 @@ import 'tag_providers.dart';
 import 'ui_state_providers.dart';
 import 'statistics_providers.dart';
 import 'currency_providers.dart';
+import 'font_scale_provider.dart';
+import 'language_provider.dart';
+import 'attachment_settings_providers.dart';
+import 'reminder_providers.dart';
 
 /// SyncEngine 对外广播事件流(PR 1 引入)。
 ///
@@ -147,8 +152,8 @@ final s3ConfigProvider = FutureProvider<CloudServiceConfig?>((ref) async {
   return store.loadS3();
 });
 
-typedef CloudServicesFactory = Future<
-    ({CloudProvider? provider, CloudAuthService? auth})> Function(
+typedef CloudServicesFactory
+    = Future<({CloudProvider? provider, CloudAuthService? auth})> Function(
   CloudServiceConfig config,
 );
 
@@ -294,8 +299,7 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
         return true;
       });
 
-  Future<void> saveAndActivate(CloudServiceConfig config) =>
-      _enqueue(() async {
+  Future<void> saveAndActivate(CloudServiceConfig config) => _enqueue(() async {
         await _ensureReady();
         await ref.read(cloudServiceStoreProvider).saveAndActivate(config);
         await _refreshConfigProviders(config.type);
@@ -446,8 +450,8 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
             logger.info('CloudSync', 'BeeCount Cloud 未登录,等首次 API 触发恢复');
           }
         } catch (error, stack) {
-          logger.warning('CloudSync',
-              'BeeCount Cloud 初始 currentUser 失败: $error', stack);
+          logger.warning(
+              'CloudSync', 'BeeCount Cloud 初始 currentUser 失败: $error', stack);
         }
         final engine = SyncEngine(
           db: db,
@@ -1118,6 +1122,55 @@ void _applyAppearanceFromServer(Ref ref, Map<String, dynamic> appearance) =>
     runApplyingFromServer(() => _applyAppearanceFields(ref, appearance));
 
 void _applyAppearanceFields(Ref ref, Map<String, dynamic> appearance) {
+  final appProfileSnapshot = appearance['app_profile_sync_v1'];
+  if (appProfileSnapshot is Map<String, dynamic>) {
+    unawaited(() async {
+      try {
+        await AppProfileSyncService.apply(appProfileSnapshot);
+        ref.read(fontScaleLevelProvider.notifier).state =
+            (appProfileSnapshot['values'] as Map?)?['fontScaleLevel'] as int? ??
+                ref.read(fontScaleLevelProvider);
+        ref.read(customFontScaleProvider.notifier).state =
+            (appProfileSnapshot['values'] as Map?)?['customFontScale']
+                    as double? ??
+                ref.read(customFontScaleProvider);
+        final prefs = await SharedPreferences.getInstance();
+        final languageCode = prefs.getString('selected_language');
+        final countryCode = prefs.getString('selected_language_country');
+        await ref.read(languageProvider.notifier).setLanguage(
+              languageCode == null ? null : Locale(languageCode, countryCode),
+            );
+        ref.read(hideAmountsProvider.notifier).state =
+            prefs.getBool('hideAmounts') ?? false;
+        ref.invalidate(searchAmountFilterEnabledProvider);
+        ref.invalidate(accountFeatureEnabledProvider);
+        await ref.read(homeBudgetCardEnabledProvider.notifier).setEnabled(
+              prefs.getBool('home_budget_card_enabled') ?? true,
+            );
+        final assetTrend = prefs.getString('assetTrendView');
+        if (assetTrend == 'trend' || assetTrend == 'composition') {
+          await ref.read(assetTrendViewProvider.notifier).select(
+                assetTrend == 'composition'
+                    ? AssetTrendView.composition
+                    : AssetTrendView.trend,
+              );
+        }
+        await ref
+            .read(attachmentKeepOriginalProvider.notifier)
+            .setEnabled(prefs.getBool('attachmentKeepOriginal') ?? false);
+        await ref.read(reminderSettingsProvider.notifier).updateSettings(
+              ReminderSettings(
+                isEnabled: prefs.getBool('reminder_enabled') ?? false,
+                hour: prefs.getInt('reminder_hour') ?? 21,
+                minute: prefs.getInt('reminder_minute') ?? 0,
+              ),
+            );
+        logger.info('profile_sync', '已应用云端应用设置和收藏图片');
+      } catch (e, st) {
+        logger.warning('profile_sync', '应用云端设置失败: $e', st);
+      }
+    }());
+  }
   final headerStyle = appearance['header_decoration_style'] as String?;
   if (headerStyle != null && headerStyle.isNotEmpty) {
     final current = ref.read(headerDecorationStyleProvider);
