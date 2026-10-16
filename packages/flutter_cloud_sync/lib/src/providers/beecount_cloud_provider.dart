@@ -2276,7 +2276,14 @@ class BeeCountCloudStorageService implements CloudStorageService {
   Future<BeeCountCloudProfile> updateMyProfileAppearance({
     required Map<String, dynamic> appearance,
   }) async {
-    return _patchMyProfile(body: {'appearance': appearance});
+    // appearance is shared by multiple app features (visual preferences,
+    // synced settings and favorite-image metadata). Merge before PATCH so a
+    // theme update from an older app version cannot erase fields it doesn't
+    // know about.
+    final existing = await getMyProfile();
+    return _patchMyProfile(body: {
+      'appearance': {...?existing.appearance, ...appearance},
+    });
   }
 
   /// 推送 AI 配置(providers 数组 + binding + custom_prompt + strategy 等)

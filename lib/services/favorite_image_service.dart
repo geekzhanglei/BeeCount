@@ -1,11 +1,14 @@
 import 'dart:io';
+import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoriteImageService {
   static const _storageKey = 'favorite_image_files_v1';
+  static final ValueNotifier<int> syncRevision = ValueNotifier<int>(0);
 
   static Future<Directory> _directory() async {
     final documents = await getApplicationDocumentsDirectory();
@@ -56,5 +59,40 @@ class FavoriteImageService {
     final files = preferences.getStringList(_storageKey) ?? <String>[];
     files.remove(name);
     await preferences.setStringList(_storageKey, files);
+  }
+
+  /// Replaces the local collection with images received from the user profile.
+  /// Only generated favorite filenames are accepted; remote paths are never
+  /// used to construct a destination outside the app's favorites directory.
+  static Future<void> replaceFromSync(List<dynamic> images) async {
+    final directory = await _directory();
+    final names = <String>[];
+    for (final entity in directory.listSync(followLinks: false)) {
+      if (entity is File &&
+          path.basename(entity.path).startsWith('favorite_')) {
+        await entity.delete();
+      }
+    }
+    for (final item in images) {
+      if (item is! Map) continue;
+      final name = item['name'];
+      final encoded = item['data'];
+      if (name is! String ||
+          !RegExp(r'^favorite_[A-Za-z0-9_.-]+$').hasMatch(name) ||
+          encoded is! String) {
+        continue;
+      }
+      try {
+        final bytes = base64Decode(encoded);
+        if (bytes.isEmpty) continue;
+        await File(path.join(directory.path, name)).writeAsBytes(bytes);
+        names.add(name);
+      } on FormatException {
+        continue;
+      }
+    }
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setStringList(_storageKey, names);
+    syncRevision.value++;
   }
 }

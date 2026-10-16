@@ -20,8 +20,17 @@ class _FavoritesPageState extends State<FavoritesPage> {
   @override
   void initState() {
     super.initState();
+    FavoriteImageService.syncRevision.addListener(_onSyncedImagesChanged);
     _load();
   }
+
+  @override
+  void dispose() {
+    FavoriteImageService.syncRevision.removeListener(_onSyncedImagesChanged);
+    super.dispose();
+  }
+
+  void _onSyncedImagesChanged() => _load();
 
   Future<void> _load() async {
     final images = await FavoriteImageService.list();

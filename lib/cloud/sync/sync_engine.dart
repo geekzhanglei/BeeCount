@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 import '../../data/db.dart';
 import '../../data/repositories/base_repository.dart';
 import '../../services/custom_icon_service.dart';
+import '../../services/app_profile_sync_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ui/avatar_service.dart';
 import '../sync_service.dart' as app;
