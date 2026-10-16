@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers.dart';
 import '../../widgets/ui/ui.dart';
+import '../../widgets/ui/hsv_color_picker.dart';
 import '../../widgets/biz/section_card.dart';
 import '../../data/db.dart' as db;
 import '../../l10n/app_localizations.dart';
@@ -69,6 +70,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     'insurance',
     'social_fund',
     'loan',
+    'custom',
   ];
   static const List<Color> _customColorOptions = [
     Color(0xFF5B8FF9),
@@ -121,11 +123,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     _selectedCurrency = widget.account?.currency ?? 'CNY';
     _billingDay = widget.account?.billingDay;
     _paymentDueDay = widget.account?.paymentDueDay;
-    _typeTab = _selectedType == 'custom'
-        ? 2
-        : isValuationOnlyType(_selectedType)
-            ? 1
-            : 0;
+    _typeTab = isValuationOnlyType(_selectedType) ? 1 : 0;
     if (hasEditableCurrentBalance) _loadEditableCurrentBalance();
     _loadReminderSettings();
   }
@@ -520,9 +518,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
 
     final typesForTab = _typeTab == 0
         ? tradableAccountTypes
-        : _typeTab == 1
-            ? valuationAccountTypes
-            : const ['custom'];
+        : valuationAccountTypes;
     final isCreditCard = _selectedType == 'credit_card';
     final isBankCard = _selectedType == 'bank_card';
 
@@ -572,11 +568,6 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                     selected: _typeTab == 1,
                                     primaryColor: primaryColor,
                                     onTap: () => setState(() => _typeTab = 1)),
-                                _segTab(context,
-                                    label: l10n.accountTypeCustom,
-                                    selected: _typeTab == 2,
-                                    primaryColor: primaryColor,
-                                    onTap: () => setState(() => _typeTab = 2)),
                               ],
                             ),
                           ),
@@ -592,12 +583,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                               final isSelected = _selectedType == type;
                               // 编辑模式禁止跨“可交易 / 估值”大类切换（语义不同）
                               final disabled = isEditing &&
-                                  (widget.account!.type == 'custom'
-                                      ? type != 'custom'
-                                      : type == 'custom' ||
-                                          isValuationOnlyType(type) !=
-                                              isValuationOnlyType(
-                                                  widget.account!.type));
+                                  isValuationOnlyType(type) !=
+                                      isValuationOnlyType(widget.account!.type);
                               return _AccountTypeCard(
                                 type: type,
                                 label: getAccountTypeLabel(context, type),
@@ -1001,9 +988,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                     ),
                   ),
 
-                  if (_selectedType == 'custom') ...[
-                    SizedBox(height: 8.0.scaled(context, ref)),
-                    SectionCard(
+                  SizedBox(height: 8.0.scaled(context, ref)),
+                  SectionCard(
                       margin: EdgeInsets.zero,
                       child: Padding(
                         padding: EdgeInsets.all(16.0.scaled(context, ref)),
@@ -1040,14 +1026,19 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                     onTap: () async {
                                       final picked = await showDialog<Color>(
                                         context: context,
-                                        builder: (_) =>
-                                            _AccountColorPickerDialog(
-                                          initialColor: _customBackgroundColor ==
-                                                  null
-                                              ? primaryColor
-                                              : Color(int.parse(
-                                                  'FF${_customBackgroundColor!.replaceFirst('#', '')}',
-                                                  radix: 16)),
+                                        builder: (dialogContext) => AlertDialog(
+                                          title: Text(l10n.personalizeCustomTitle),
+                                          content: SingleChildScrollView(
+                                            child: HsvColorPicker(
+                                              initialColor: _customBackgroundColor == null
+                                                  ? primaryColor
+                                                  : Color(int.parse(
+                                                      'FF${_customBackgroundColor!.replaceFirst('#', '')}',
+                                                      radix: 16)),
+                                              onColorSelected: (color) =>
+                                                  Navigator.of(dialogContext).pop(color),
+                                            ),
+                                          ),
                                         ),
                                       );
                                       if (picked != null && mounted) {
@@ -1081,7 +1072,6 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                         ),
                       ),
                     ),
-                  ],
 
                   SizedBox(height: 24.0.scaled(context, ref)),
 
@@ -1292,10 +1282,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           note: noteText.isNotEmpty ? noteText : null,
           clearMetadataFields: clearMetadataFields,
           initialBalance: _selectedType == 'custom' ? initialBalance : null,
-          backgroundColor:
-              _selectedType == 'custom' ? _customBackgroundColor : null,
-          excludeFromNetWorth:
-              _selectedType == 'custom' ? _excludeFromNetWorth : null,
+          backgroundColor: _customBackgroundColor,
+          excludeFromNetWorth: _excludeFromNetWorth,
         );
 
         if (balanceNeedsUpdate) {
@@ -1339,10 +1327,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
               ? cardLastFourText
               : null,
           note: noteText.isNotEmpty ? noteText : null,
-          backgroundColor:
-              _selectedType == 'custom' ? _customBackgroundColor : null,
-          excludeFromNetWorth:
-              _selectedType == 'custom' && _excludeFromNetWorth,
+          backgroundColor: _customBackgroundColor,
+          excludeFromNetWorth: _excludeFromNetWorth,
         );
 
         // 保存还款提醒设置
@@ -2014,76 +2000,6 @@ class _DayPickerTile extends ConsumerWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _AccountColorPickerDialog extends StatefulWidget {
-  const _AccountColorPickerDialog({required this.initialColor});
-
-  final Color initialColor;
-
-  @override
-  State<_AccountColorPickerDialog> createState() =>
-      _AccountColorPickerDialogState();
-}
-
-class _AccountColorPickerDialogState extends State<_AccountColorPickerDialog> {
-  late HSVColor _color = HSVColor.fromColor(widget.initialColor);
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final color = _color.toColor();
-    return AlertDialog(
-      title: Text(l10n.personalizeCustomTitle),
-      content: SizedBox(
-        width: 320,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(l10n.personalizeHue(_color.hue.round())),
-              Slider(
-                value: _color.hue,
-                min: 0,
-                max: 360,
-                onChanged: (v) => setState(() => _color = _color.withHue(v)),
-              ),
-              Text(l10n
-                  .personalizeSaturation((_color.saturation * 100).round())),
-              Slider(
-                value: _color.saturation,
-                onChanged: (v) =>
-                    setState(() => _color = _color.withSaturation(v)),
-              ),
-              Text(l10n.personalizeBrightness((_color.value * 100).round())),
-              Slider(
-                value: _color.value,
-                onChanged: (v) => setState(() => _color = _color.withValue(v)),
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.commonCancel),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, color),
-          child: Text(l10n.personalizeSelectColor),
-        ),
-      ],
     );
   }
 }

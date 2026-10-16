@@ -16243,6 +16243,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added to favorites'**
   String get favoritesSaved;
+
+  /// No description provided for @widgetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get widgetsTitle;
+
+  /// No description provided for @kellyFormulaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Kelly Criterion'**
+  String get kellyFormulaTitle;
+
+  /// No description provided for @kellyWinRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated win rate (%)'**
+  String get kellyWinRate;
+
+  /// No description provided for @kellyWinLossRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Win/loss ratio (profit/loss)'**
+  String get kellyWinLossRatio;
+
+  /// No description provided for @kellyFullKelly.
+  ///
+  /// In en, this message translates to:
+  /// **'Theoretical stake (Full Kelly)'**
+  String get kellyFullKelly;
+
+  /// No description provided for @kellyHalfKelly.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference stake (Half Kelly)'**
+  String get kellyHalfKelly;
+
+  /// No description provided for @kellyNoEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'These inputs show no positive edge; suggested stake is 0%.'**
+  String get kellyNoEdge;
+
+  /// No description provided for @kellyFormulaExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Formula: f* = (b × p − q) ÷ b. p is win probability, q is loss probability, and b is net profit per unit lost.'**
+  String get kellyFormulaExplanation;
+
+  /// No description provided for @kellyRiskNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The formula assumes accurate estimates of win probability and payout ratio. Estimation errors can materially change the result; consider a smaller fraction and your own risk tolerance.'**
+  String get kellyRiskNote;
+
+  /// No description provided for @kellyWinRateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a win rate from 0 to 100.'**
+  String get kellyWinRateError;
+
+  /// No description provided for @kellyWinLossRatioError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a win/loss ratio greater than 0.'**
+  String get kellyWinLossRatioError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

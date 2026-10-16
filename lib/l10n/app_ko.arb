@@ -2180,5 +2180,16 @@
   "favoritesAddImages": "Add images",
   "favoritesEmpty": "No favorite images yet",
   "favoritesSaveImage": "Save image to favorites",
-  "favoritesSaved": "Added to favorites"
+  "favoritesSaved": "Added to favorites",
+  "widgetsTitle": "도구",
+  "kellyFormulaTitle": "켈리 공식",
+  "kellyWinRate": "예상 승률(%)",
+  "kellyWinLossRatio": "손익비(수익/손실)",
+  "kellyFullKelly": "이론 비중(풀 켈리)",
+  "kellyHalfKelly": "참고 비중(하프 켈리)",
+  "kellyNoEdge": "현재 입력값에는 양의 기대값이 없습니다. 권장 비중은 0%입니다.",
+  "kellyFormulaExplanation": "공식: f* = (b × p − q) ÷ b. p는 승률, q는 패배 확률, b는 1단위 손실당 순이익입니다.",
+  "kellyRiskNote": "이 공식은 승률과 손익비를 정확히 추정했다고 가정합니다. 추정 오차는 결과를 크게 바꿀 수 있으므로 더 낮은 비율과 본인의 위험 감수 수준을 고려하세요.",
+  "kellyWinRateError": "승률을 0에서 100 사이로 입력하세요.",
+  "kellyWinLossRatioError": "손익비를 0보다 크게 입력하세요."
 }

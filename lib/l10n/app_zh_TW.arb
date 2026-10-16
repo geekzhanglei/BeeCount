@@ -3299,5 +3299,16 @@
   "favoritesAddImages": "新增圖片",
   "favoritesEmpty": "尚未收藏圖片",
   "favoritesSaveImage": "收藏圖片",
-  "favoritesSaved": "已加入收藏夾"
+  "favoritesSaved": "已加入收藏夾",
+  "widgetsTitle": "小工具",
+  "kellyFormulaTitle": "凱利公式",
+  "kellyWinRate": "估算勝率（%）",
+  "kellyWinLossRatio": "盈虧比（獲利/虧損）",
+  "kellyFullKelly": "理論倉位（全凱利）",
+  "kellyHalfKelly": "參考倉位（半凱利）",
+  "kellyNoEdge": "目前參數下沒有正期望，建議倉位為 0%。",
+  "kellyFormulaExplanation": "公式：f* = (b × p − q) ÷ b。p 為勝率，q 為失敗機率，b 為每承擔 1 單位虧損時對應的淨獲利。",
+  "kellyRiskNote": "凱利公式假設勝率與盈虧比估算準確。估算誤差會顯著影響結果，實際使用可參考較低比例，並考量自身風險承受能力。",
+  "kellyWinRateError": "請輸入 0 到 100 之間的勝率。",
+  "kellyWinLossRatioError": "請輸入大於 0 的盈虧比。"
 }

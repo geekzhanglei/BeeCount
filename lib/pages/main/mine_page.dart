@@ -26,6 +26,7 @@ import '../settings/automation_page.dart';
 import '../settings/about_page.dart';
 import '../report/annual_report_page.dart';
 import 'favorites_page.dart';
+import 'tools_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../utils/ui_scale_extensions.dart';
 
@@ -426,6 +427,19 @@ class MinePage extends ConsumerWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (_) => const FavoritesPage()),
+                          );
+                        },
+                      ),
+                      BeeTokens.cardDivider(context),
+                      AppListTile(
+                        leading: Icons.widgets_outlined,
+                        title: AppLocalizations.of(context).widgetsTitle,
+                        trailing: Icon(Icons.chevron_right,
+                            color: BeeTokens.iconTertiary(context), size: 20),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const ToolsPage()),
                           );
                         },
                       ),

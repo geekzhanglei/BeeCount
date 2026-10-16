@@ -8634,6 +8634,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get favoritesSaved => '已添加到收藏夹';
+
+  @override
+  String get widgetsTitle => '小工具';
+
+  @override
+  String get kellyFormulaTitle => '凯利公式';
+
+  @override
+  String get kellyWinRate => '估算胜率（%）';
+
+  @override
+  String get kellyWinLossRatio => '盈亏比（盈利/亏损）';
+
+  @override
+  String get kellyFullKelly => '理论仓位（全凯利）';
+
+  @override
+  String get kellyHalfKelly => '参考仓位（半凯利）';
+
+  @override
+  String get kellyNoEdge => '当前参数下没有正期望，建议仓位为 0%。';
+
+  @override
+  String get kellyFormulaExplanation => '公式：f* = (b × p − q) ÷ b。p 为胜率，q 为失败概率，b 为每承担 1 单位亏损时对应的净盈利。';
+
+  @override
+  String get kellyRiskNote => '凯利公式假设胜率与盈亏比估计准确。估计误差会显著影响结果，实际使用可参考较低比例，并结合自身风险承受能力。';
+
+  @override
+  String get kellyWinRateError => '请输入 0 到 100 之间的胜率。';
+
+  @override
+  String get kellyWinLossRatioError => '请输入大于 0 的盈亏比。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -17266,4 +17299,37 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get favoritesSaved => '已加入收藏夾';
+
+  @override
+  String get widgetsTitle => '小工具';
+
+  @override
+  String get kellyFormulaTitle => '凱利公式';
+
+  @override
+  String get kellyWinRate => '估算勝率（%）';
+
+  @override
+  String get kellyWinLossRatio => '盈虧比（獲利/虧損）';
+
+  @override
+  String get kellyFullKelly => '理論倉位（全凱利）';
+
+  @override
+  String get kellyHalfKelly => '參考倉位（半凱利）';
+
+  @override
+  String get kellyNoEdge => '目前參數下沒有正期望，建議倉位為 0%。';
+
+  @override
+  String get kellyFormulaExplanation => '公式：f* = (b × p − q) ÷ b。p 為勝率，q 為失敗機率，b 為每承擔 1 單位虧損時對應的淨獲利。';
+
+  @override
+  String get kellyRiskNote => '凱利公式假設勝率與盈虧比估算準確。估算誤差會顯著影響結果，實際使用可參考較低比例，並考量自身風險承受能力。';
+
+  @override
+  String get kellyWinRateError => '請輸入 0 到 100 之間的勝率。';
+
+  @override
+  String get kellyWinLossRatioError => '請輸入大於 0 的盈虧比。';
 }

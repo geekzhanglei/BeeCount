@@ -3594,5 +3594,16 @@
   "favoritesAddImages": "添加图片",
   "favoritesEmpty": "还没有收藏图片",
   "favoritesSaveImage": "收藏图片",
-  "favoritesSaved": "已添加到收藏夹"
+  "favoritesSaved": "已添加到收藏夹",
+  "widgetsTitle": "小工具",
+  "kellyFormulaTitle": "凯利公式",
+  "kellyWinRate": "估算胜率（%）",
+  "kellyWinLossRatio": "盈亏比（盈利/亏损）",
+  "kellyFullKelly": "理论仓位（全凯利）",
+  "kellyHalfKelly": "参考仓位（半凯利）",
+  "kellyNoEdge": "当前参数下没有正期望，建议仓位为 0%。",
+  "kellyFormulaExplanation": "公式：f* = (b × p − q) ÷ b。p 为胜率，q 为失败概率，b 为每承担 1 单位亏损时对应的净盈利。",
+  "kellyRiskNote": "凯利公式假设胜率与盈亏比估计准确。估计误差会显著影响结果，实际使用可参考较低比例，并结合自身风险承受能力。",
+  "kellyWinRateError": "请输入 0 到 100 之间的胜率。",
+  "kellyWinLossRatioError": "请输入大于 0 的盈亏比。"
 }

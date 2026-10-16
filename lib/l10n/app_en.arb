@@ -3887,5 +3887,16 @@
   "favoritesAddImages": "Add images",
   "favoritesEmpty": "No favorite images yet",
   "favoritesSaveImage": "Save image to favorites",
-  "favoritesSaved": "Added to favorites"
+  "favoritesSaved": "Added to favorites",
+  "widgetsTitle": "Tools",
+  "kellyFormulaTitle": "Kelly Criterion",
+  "kellyWinRate": "Estimated win rate (%)",
+  "kellyWinLossRatio": "Win/loss ratio (profit/loss)",
+  "kellyFullKelly": "Theoretical stake (Full Kelly)",
+  "kellyHalfKelly": "Reference stake (Half Kelly)",
+  "kellyNoEdge": "These inputs show no positive edge; suggested stake is 0%.",
+  "kellyFormulaExplanation": "Formula: f* = (b × p − q) ÷ b. p is win probability, q is loss probability, and b is net profit per unit lost.",
+  "kellyRiskNote": "The formula assumes accurate estimates of win probability and payout ratio. Estimation errors can materially change the result; consider a smaller fraction and your own risk tolerance.",
+  "kellyWinRateError": "Enter a win rate from 0 to 100.",
+  "kellyWinLossRatioError": "Enter a win/loss ratio greater than 0."
 }

@@ -5,6 +5,7 @@ import '../../providers.dart';
 import '../../providers/theme_providers.dart';
 import '../../styles/header_skins.dart';
 import '../../widgets/ui/ui.dart';
+import '../../widgets/ui/hsv_color_picker.dart';
 import '../../styles/tokens.dart';
 import 'header_skin_page.dart';
 
@@ -143,7 +144,8 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.personalizeCustomTitle),
         content: SingleChildScrollView(
-          child: _ColorPicker(
+          child: HsvColorPicker(
+            initialColor: ref.read(primaryColorProvider),
             onColorSelected: (color) {
               ref.read(primaryColorProvider.notifier).state = color;
               Navigator.of(context).pop();
@@ -346,167 +348,3 @@ class _CustomColorCard extends StatelessWidget {
   }
 }
 
-// HSV颜色选择器
-class _ColorPicker extends StatefulWidget {
-  final Function(Color) onColorSelected;
-  const _ColorPicker({required this.onColorSelected});
-
-  @override
-  State<_ColorPicker> createState() => _ColorPickerState();
-}
-
-class _ColorPickerState extends State<_ColorPicker> {
-  HSVColor currentColor = HSVColor.fromColor(Colors.blue);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 320,
-      height: 400,
-      child: Column(
-        children: [
-          // 颜色预览
-          Container(
-            width: double.infinity,
-            height: 80,
-            decoration: BoxDecoration(
-              color: currentColor.toColor(),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: BeeTokens.borderStrong(context), width: 1),
-            ),
-            child: Center(
-              child: Text(
-                '#${currentColor.toColor().r.round().toRadixString(16).padLeft(2, '0')}${currentColor.toColor().g.round().toRadixString(16).padLeft(2, '0')}${currentColor.toColor().b.round().toRadixString(16).padLeft(2, '0')}'.toUpperCase(),
-                style: TextStyle(
-                  color: currentColor.value > 0.5 ? Colors.black : Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // 色相滑块
-          Text(AppLocalizations.of(context)!.personalizeHue(currentColor.hue.round()), style: TextStyle(fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
-          Container(
-            height: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                colors: List.generate(7, (index) => HSVColor.fromAHSV(1.0, index * 60.0, 1.0, 1.0).toColor()),
-              ),
-            ),
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 0,
-                thumbColor: Colors.white,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
-              ),
-              child: Slider(
-                value: currentColor.hue,
-                min: 0,
-                max: 360,
-                onChanged: (value) {
-                  setState(() {
-                    currentColor = currentColor.withHue(value);
-                  });
-                },
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          // 饱和度滑块
-          Text(AppLocalizations.of(context)!.personalizeSaturation((currentColor.saturation * 100).round()), style: TextStyle(fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
-          Container(
-            height: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                colors: [
-                  HSVColor.fromAHSV(1.0, currentColor.hue, 0.0, currentColor.value).toColor(),
-                  HSVColor.fromAHSV(1.0, currentColor.hue, 1.0, currentColor.value).toColor(),
-                ],
-              ),
-            ),
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 0,
-                thumbColor: Colors.white,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
-              ),
-              child: Slider(
-                value: currentColor.saturation,
-                min: 0,
-                max: 1,
-                onChanged: (value) {
-                  setState(() {
-                    currentColor = currentColor.withSaturation(value);
-                  });
-                },
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          // 亮度滑块
-          Text(AppLocalizations.of(context)!.personalizeBrightness((currentColor.value * 100).round()), style: TextStyle(fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
-          Container(
-            height: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                colors: [
-                  HSVColor.fromAHSV(1.0, currentColor.hue, currentColor.saturation, 0.0).toColor(),
-                  HSVColor.fromAHSV(1.0, currentColor.hue, currentColor.saturation, 1.0).toColor(),
-                ],
-              ),
-            ),
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 0,
-                thumbColor: Colors.white,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
-              ),
-              child: Slider(
-                value: currentColor.value,
-                min: 0,
-                max: 1,
-                onChanged: (value) {
-                  setState(() {
-                    currentColor = currentColor.withValue(value);
-                  });
-                },
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // 确认按钮
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => widget.onColorSelected(currentColor.toColor()),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: currentColor.toColor(),
-                foregroundColor: currentColor.value > 0.5 ? Colors.black : Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(AppLocalizations.of(context)!.personalizeSelectColor, style: const TextStyle(fontWeight: FontWeight.bold)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
