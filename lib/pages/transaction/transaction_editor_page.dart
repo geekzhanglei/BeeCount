@@ -248,47 +248,6 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
   }
 
   Future<void> _onCategorySelected(BuildContext context, Category c, String kind) async {
-    if (c.kind == 'transfer') {
-      var initialFromAccountId = widget.initialAccountId;
-      var initialToAccountId = widget.initialToAccountId;
-
-      // 快速记账时沿用已设置的默认账户，让转账分类点击后直接弹出金额输入层。
-      // 没有可用默认账户时仍由转账表单让用户选择，避免自动选错账户。
-      if (widget.quickAdd &&
-          widget.editingTransactionId == null &&
-          initialFromAccountId == null &&
-          initialToAccountId == null) {
-        final ledgerId = ref.read(currentLedgerIdProvider);
-        initialFromAccountId = await _getDefaultAccountId('expense', ledgerId);
-        initialToAccountId = await _getDefaultAccountId('income', ledgerId);
-        if (initialFromAccountId != null &&
-            initialFromAccountId == initialToAccountId) {
-          initialToAccountId = null;
-        }
-      }
-      if (!context.mounted) return;
-
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Column(
-              children: [
-                PrimaryHeader(title: AppLocalizations.of(context)!.transferTitle, showBack: true),
-                Expanded(
-                  child: _transferForm(() {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
-                      initialFromAccountId: initialFromAccountId,
-                      initialToAccountId: initialToAccountId),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      return;
-    }
     if (!widget.quickAdd) {
       Navigator.pop(context, c);
       return;
@@ -498,14 +457,10 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
     );
   }
 
-  TransferForm _transferForm(
-    VoidCallback onComplete, {
-    int? initialFromAccountId,
-    int? initialToAccountId,
-  }) => TransferForm(
+  TransferForm _transferForm(VoidCallback onComplete) => TransferForm(
         onTransferComplete: onComplete,
-        initialFromAccountId: initialFromAccountId ?? widget.initialAccountId,
-        initialToAccountId: initialToAccountId ?? widget.initialToAccountId,
+        initialFromAccountId: widget.initialAccountId,
+        initialToAccountId: widget.initialToAccountId,
         editingTransactionId: widget.editingTransactionId,
         initialAmount: widget.initialAmount,
         initialNote: widget.initialNote,
