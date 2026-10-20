@@ -248,26 +248,6 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
   }
 
   Future<void> _onCategorySelected(BuildContext context, Category c, String kind) async {
-    if (c.kind == 'transfer') {
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Column(
-              children: [
-                PrimaryHeader(title: AppLocalizations.of(context)!.transferTitle, showBack: true),
-                Expanded(
-                  child: _transferForm(() {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  }),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      return;
-    }
     if (!widget.quickAdd) {
       Navigator.pop(context, c);
       return;
